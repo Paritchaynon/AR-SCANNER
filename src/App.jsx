@@ -14,9 +14,11 @@ function App() {
   const [showParticles, setShowParticles] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
   const [activeTarget, setActiveTarget] = useState(null);
+  const [arEffectTargetId, setArEffectTargetId] = useState(null);
   
   const targetRefs = useRef([]);
   const detectionLocked = useRef(false);
+  const currentTargetRef = useRef(null);
   
   // Ref to track the latest isTracking value inside the closure
   const trackingRef = useRef(false);
@@ -28,12 +30,14 @@ function App() {
 
   const triggerDetection = (targetData) => {
     setActiveTarget(targetData);
+    setArEffectTargetId(targetData.id); // Trigger 3D AR particle effect
     setShowPanel(false);
     setShowParticles(true);
     
     // Play particle effect for 1.5 seconds, then show panel
     setTimeout(() => {
       setShowParticles(false);
+      setArEffectTargetId(null); // Clear 3D AR effect
       setShowPanel(true);
     }, 1500);
   };
@@ -43,9 +47,9 @@ function App() {
     detectionLocked.current = false; // Unlock so it can automatically detect again
     
     // If the camera is still pointing at the target, instantly re-trigger
-    if (trackingRef.current && activeTarget) {
+    if (trackingRef.current && currentTargetRef.current) {
       detectionLocked.current = true;
-      triggerDetection(activeTarget);
+      triggerDetection(currentTargetRef.current);
     }
   };
 
@@ -61,6 +65,7 @@ function App() {
         console.log(`Target ${targetData.index} found!`);
         setIsTracking(true);
         trackingRef.current = true;
+        currentTargetRef.current = targetData;
         
         // Prevent re-triggering the particles/panel if it's already locked
         if (detectionLocked.current) return;
@@ -73,6 +78,9 @@ function App() {
         console.log(`Target ${targetData.index} lost!`);
         setIsTracking(false);
         trackingRef.current = false;
+        if (currentTargetRef.current?.id === targetData.id) {
+          currentTargetRef.current = null;
+        }
       };
 
       targetEl.addEventListener('targetFound', handleTargetFound);
@@ -161,7 +169,18 @@ function App() {
               mindar-image-target={`targetIndex: ${target.index}`} 
               ref={el => targetRefs.current[idx] = el}
             >
-              {/* Empty AR container */}
+              {/* Temporary 3D Particle Burst on the physical object */}
+              {arEffectTargetId === target.id && (
+                <a-entity>
+                  {/* Soft Center Aura */}
+                  <a-circle radius="0.3" color="#FDE047" material="shader: flat; transparent: true" animation="property: scale; from: 0 0 0; to: 1.5 1.5 1.5; dur: 800; easing: easeOutQuad" animation__fade="property: material.opacity; from: 0.6; to: 0; dur: 800"></a-circle>
+                  {/* Floating Lantern Particles */}
+                  <a-sphere radius="0.03" color="#FDE047" material="shader: flat" animation="property: position; from: 0 0 0; to: 0.2 0.8 0; dur: 2000; easing: easeOutQuad" animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"></a-sphere>
+                  <a-sphere radius="0.04" color="#EF4444" material="shader: flat" animation="property: position; from: 0 0 0; to: -0.2 0.6 0.1; dur: 2000; easing: easeOutQuad" animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"></a-sphere>
+                  <a-sphere radius="0.03" color="#F59E0B" material="shader: flat" animation="property: position; from: 0 0 0; to: 0.1 0.7 -0.1; dur: 2000; easing: easeOutQuad" animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"></a-sphere>
+                  <a-sphere radius="0.02" color="#FDE047" material="shader: flat" animation="property: position; from: 0 0 0; to: -0.15 0.9 0; dur: 2000; easing: easeOutQuad" animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"></a-sphere>
+                </a-entity>
+              )}
             </a-entity>
           ))}
         </a-scene>
