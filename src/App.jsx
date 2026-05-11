@@ -136,7 +136,7 @@ function App() {
       {/* AR Scene */}
       <div className="ar-container">
         <a-scene
-          mindar-image="imageTargetSrc: /targets.mind; autoStart: true; uiLoading: no; uiScanning: no"
+          mindar-image={`imageTargetSrc: ${import.meta.env.BASE_URL}targets.mind; autoStart: true; uiLoading: no; uiScanning: no`}
           color-space="sRGB"
           renderer="colorManagement: true, physicallyCorrectLights"
           vr-mode-ui="enabled: false"
