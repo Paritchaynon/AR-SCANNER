@@ -4,7 +4,11 @@
   "language": "Language",
   "english": "English",
   "thai": "Thai",
-  "itemDetected": "Heart Lion",
-  "itemDescription": "A magical lion with a vibrant red mane shaped like a sun, adorned with golden hearts. It symbolizes courage and warmth.",
-  "close": "Close"
+  "close": "Close",
+  "targets": {
+    "target_0": {
+      "title": "Heart Lion",
+      "desc": "A magical lion with a vibrant red mane shaped like a sun, adorned with golden hearts. It symbolizes courage and warmth."
+    }
+  }
 }

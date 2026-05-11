@@ -4,6 +4,7 @@ import { Globe, Scan, X } from 'lucide-react';
 import 'aframe';
 import 'mind-ar/dist/mindar-image-aframe.prod.js';
 import './App.css';
+import { targetsConfig } from './config/targetsConfig';
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -12,8 +13,9 @@ function App() {
   const [isTracking, setIsTracking] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
+  const [activeTarget, setActiveTarget] = useState(null);
   
-  const targetRef = useRef(null);
+  const targetRefs = useRef([]);
   const detectionLocked = useRef(false);
   
   // Ref to track the latest isTracking value inside the closure
@@ -24,7 +26,8 @@ function App() {
     i18n.changeLanguage(newLang);
   };
 
-  const triggerDetection = () => {
+  const triggerDetection = (targetData) => {
+    setActiveTarget(targetData);
     setShowPanel(false);
     setShowParticles(true);
     
@@ -40,18 +43,22 @@ function App() {
     detectionLocked.current = false; // Unlock so it can automatically detect again
     
     // If the camera is still pointing at the target, instantly re-trigger
-    if (trackingRef.current) {
+    if (trackingRef.current && activeTarget) {
       detectionLocked.current = true;
-      triggerDetection();
+      triggerDetection(activeTarget);
     }
   };
 
   useEffect(() => {
-    const target = targetRef.current;
+    const cleanupFns = [];
     
-    if (target) {
+    targetRefs.current.forEach((targetEl, index) => {
+      if (!targetEl) return;
+      
+      const targetData = targetsConfig[index];
+      
       const handleTargetFound = () => {
-        console.log('Target found!');
+        console.log(`Target ${targetData.index} found!`);
         setIsTracking(true);
         trackingRef.current = true;
         
@@ -59,23 +66,27 @@ function App() {
         if (detectionLocked.current) return;
         
         detectionLocked.current = true;
-        triggerDetection();
+        triggerDetection(targetData);
       };
       
       const handleTargetLost = () => {
-        console.log('Target lost!');
+        console.log(`Target ${targetData.index} lost!`);
         setIsTracking(false);
         trackingRef.current = false;
       };
 
-      target.addEventListener('targetFound', handleTargetFound);
-      target.addEventListener('targetLost', handleTargetLost);
+      targetEl.addEventListener('targetFound', handleTargetFound);
+      targetEl.addEventListener('targetLost', handleTargetLost);
+      
+      cleanupFns.push(() => {
+        targetEl.removeEventListener('targetFound', handleTargetFound);
+        targetEl.removeEventListener('targetLost', handleTargetLost);
+      });
+    });
 
-      return () => {
-        target.removeEventListener('targetFound', handleTargetFound);
-        target.removeEventListener('targetLost', handleTargetLost);
-      };
-    }
+    return () => {
+      cleanupFns.forEach(fn => fn());
+    };
   }, []);
 
   return (
@@ -120,11 +131,11 @@ function App() {
         )}
 
         {/* Info Panel */}
-        {showPanel && (
+        {showPanel && activeTarget && (
           <div className="info-panel">
             <div className="info-content">
-              <h2>{t('itemDetected')}</h2>
-              <p>{t('itemDescription')}</p>
+              <h2>{t(activeTarget.titleKey)}</h2>
+              <p>{t(activeTarget.descKey)}</p>
               <button className="close-btn" onClick={handleClosePanel}>
                 {t('close')} <X size={16} />
               </button>
@@ -144,9 +155,15 @@ function App() {
         >
           <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-          <a-entity mindar-image-target="targetIndex: 0" ref={targetRef}>
-            {/* Empty AR container */}
-          </a-entity>
+          {targetsConfig.map((target, idx) => (
+            <a-entity 
+              key={target.id}
+              mindar-image-target={`targetIndex: ${target.index}`} 
+              ref={el => targetRefs.current[idx] = el}
+            >
+              {/* Empty AR container */}
+            </a-entity>
+          ))}
         </a-scene>
       </div>
     </div>
