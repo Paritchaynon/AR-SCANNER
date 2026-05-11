@@ -99,6 +99,11 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Lanna Decorative Borders */}
+      <div className="lanna-top-ornament"></div>
+      <div className="lanna-kanok-border"></div>
+      <div className="lanna-bottom-border"></div>
+
       {/* UI Overlay */}
       <div className="ui-layer">
         <header className="header">
