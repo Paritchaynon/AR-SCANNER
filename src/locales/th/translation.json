@@ -5,6 +5,8 @@
   "english": "อังกฤษ",
   "thai": "ไทย",
   "close": "ปิด",
+  "fullscreen": "เต็มจอ",
+  "rotateDevice": "กรุณาหมุนอุปกรณ์เป็นแนวตั้ง",
   "targets": {
     "target_0": {
       "title": "สิงโตแห่งหัวใจ (Heart Lion)",

@@ -5,6 +5,8 @@
   "english": "English",
   "thai": "Thai",
   "close": "Close",
+  "fullscreen": "Fullscreen",
+  "rotateDevice": "Please rotate your device to portrait mode",
   "targets": {
     "target_0": {
       "title": "Heart Lion",

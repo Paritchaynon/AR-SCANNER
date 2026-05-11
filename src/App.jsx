@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Scan, X } from 'lucide-react';
+import { Globe, Scan, X, Maximize2, RotateCcw } from 'lucide-react';
 import 'aframe';
 import 'mind-ar/dist/mindar-image-aframe.prod.js';
 import './App.css';
@@ -26,6 +26,16 @@ function App() {
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'th' : 'en';
     i18n.changeLanguage(newLang);
+  };
+
+  const handleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.() ||
+      document.documentElement.webkitRequestFullscreen?.();
+    } else {
+      document.exitFullscreen?.() ||
+      document.webkitExitFullscreen?.();
+    }
   };
 
   const triggerDetection = (targetData) => {
@@ -108,13 +118,18 @@ function App() {
       <div className="ui-layer">
         <header className="header">
           <div className="title">
-            <Scan className="icon" size={24} />
+            <Scan className="icon" size={20} />
             <h1>{t('appTitle')}</h1>
           </div>
-          <button className="lang-toggle" onClick={toggleLanguage}>
-            <Globe className="icon" size={18} />
-            {i18n.language === 'en' ? 'EN' : 'TH'}
-          </button>
+          <div className="header-actions">
+            <button className="fullscreen-btn" onClick={handleFullscreen} aria-label="Fullscreen">
+              <Maximize2 size={16} />
+            </button>
+            <button className="lang-toggle" onClick={toggleLanguage}>
+              <Globe size={15} />
+              {i18n.language === 'en' ? 'EN' : 'TH'}
+            </button>
+          </div>
         </header>
 
         {/* Viewfinder shows when not tracking and panel is closed */}
@@ -189,6 +204,12 @@ function App() {
             </a-entity>
           ))}
         </a-scene>
+    </div>
+
+      {/* Landscape Lock Overlay */}
+      <div className="landscape-overlay">
+        <RotateCcw className="rotate-icon" size={48} />
+        <p>{t('rotateDevice')}</p>
       </div>
     </div>
   );
