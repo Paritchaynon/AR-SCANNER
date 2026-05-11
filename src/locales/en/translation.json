@@ -1,5 +1,5 @@
 {
-  "appTitle": "AR Scanner",
+  "appTitle": "CNX",
   "scanInstruction": "Point your camera at the target image",
   "language": "Language",
   "english": "English",
@@ -8,7 +8,23 @@
   "targets": {
     "target_0": {
       "title": "Heart Lion",
-      "desc": "A magical lion with a vibrant red mane shaped like a sun, adorned with golden hearts. It symbolizes courage and warmth."
+      "desc": "A mystical lion representing love and bravery. Its glowing heart-shaped patterns symbolize warmth, compassion, and emotional strength."
+    },
+    "target_1": {
+      "title": "Lion",
+      "desc": "A powerful magical lion with a radiant mane inspired by the sun. It stands for courage, leadership, and protection."
+    },
+    "target_2": {
+      "title": "Heart",
+      "desc": "A magical heart symbol that represents love, kindness, and human connection. Its glowing energy spreads warmth and hope."
+    },
+    "target_3": {
+      "title": "Deer",
+      "desc": "A graceful mystical deer symbolizing peace, harmony, and a deep connection with nature. It moves silently through enchanted forests."
+    },
+    "target_4": {
+      "title": "Leaf",
+      "desc": "A magical leaf infused with the spirit of nature. It represents growth, renewal, and the balance of life."
     }
   }
 }
