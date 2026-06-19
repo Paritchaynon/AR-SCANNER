@@ -378,10 +378,23 @@ body {
   75%      { transform: rotate(20deg); }
 }
 
-/* Show landscape overlay when device is in landscape */
-@media (orientation: landscape) and (max-height: 500px) {
+/* Show landscape overlay when device is in landscape on mobile/tablet */
+@media (orientation: landscape) and (max-width: 1024px) {
   .landscape-overlay {
     display: flex;
+  }
+}
+
+/* Constrain layout to a sleek centered vertical card on desktop landscape */
+@media (orientation: landscape) and (min-width: 1025px) {
+  .app-container {
+    max-width: 480px;
+    margin: 0 auto;
+    border-left: 1px solid var(--glass-border);
+    border-right: 1px solid var(--glass-border);
+    box-shadow: 0 0 80px rgba(245, 158, 11, 0.18);
+    position: relative;
+    background: #000;
   }
 }
 
