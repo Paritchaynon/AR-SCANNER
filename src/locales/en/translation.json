@@ -7,10 +7,12 @@
   "close": "Close",
   "fullscreen": "Fullscreen",
   "rotateDevice": "Please rotate your device to portrait mode",
+  "readMore": "Read More",
+  "readLess": "Read Less",
   "targets": {
     "target_0": {
-      "title": "Heart Lion",
-      "desc": "A mystical lion representing love and bravery. Its glowing heart-shaped patterns symbolize warmth, compassion, and emotional strength."
+      "title": "Botan",
+      "desc": "A fairy spirit in the form of a lion, serving as a guardian of abundance and Lanna art. It was born from a peony flower, a symbol of wealth, honor, and prosperity.\n\nIts appearance is inspired by the Singha guardian figure, combined with Lanna botanical motifs, intricate vine patterns, and golden accents. These elements represent the power of nature, sacredness, elegance, and the preservation of Lanna cultural heritage through a contemporary character design.\n\n“Bo-Tan” embodies the beliefs surrounding abundance, prosperity, good fortune, and protection, blending the symbolism of the peony, the guardian Singha, and the sacred power of nature according to Lanna traditions."
     },
     "target_1": {
       "title": "Lion",

@@ -14,11 +14,13 @@ function App() {
   const [showParticles, setShowParticles] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
   const [activeTarget, setActiveTarget] = useState(null);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [arEffectTargetId, setArEffectTargetId] = useState(null);
   
   const targetRefs = useRef([]);
   const detectionLocked = useRef(false);
   const currentTargetRef = useRef(null);
+  const descRef = useRef(null);
   
   // Ref to track the latest isTracking value inside the closure
   const trackingRef = useRef(false);
@@ -40,6 +42,7 @@ function App() {
 
   const triggerDetection = (targetData) => {
     setActiveTarget(targetData);
+    setIsDescExpanded(false); // Reset description expanded state for new targets
     setArEffectTargetId(targetData.id); // Trigger 3D AR particle effect
     setShowPanel(false);
     setShowParticles(true);
@@ -163,7 +166,25 @@ function App() {
           <div className="info-panel">
             <div className="info-content">
               <h2>{t(activeTarget.titleKey)}</h2>
-              <p>{t(activeTarget.descKey)}</p>
+              <p 
+                ref={descRef}
+                className={`info-description ${isDescExpanded ? 'expanded' : ''}`}
+              >
+                {t(activeTarget.descKey)}
+              </p>
+              {t(activeTarget.descKey).length > 120 && (
+                <button 
+                  className="toggle-desc-btn" 
+                  onClick={() => {
+                    if (isDescExpanded && descRef.current) {
+                      descRef.current.scrollTop = 0;
+                    }
+                    setIsDescExpanded(!isDescExpanded);
+                  }}
+                >
+                  {isDescExpanded ? t('readLess') : t('readMore')}
+                </button>
+              )}
               <button className="close-btn" onClick={handleClosePanel}>
                 {t('close')} <X size={16} />
               </button>

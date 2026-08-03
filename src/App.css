@@ -225,6 +225,9 @@ body {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
+  max-height: 60dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Minimal gold top accent */
@@ -250,7 +253,53 @@ body {
   font-size: 0.88rem;
   line-height: 1.6;
   color: var(--text-soft);
+  margin-bottom: 8px;
+}
+
+.info-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  white-space: pre-line;
+}
+
+.info-description.expanded {
+  display: block;
+  overflow-y: auto;
   margin-bottom: 16px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) transparent;
+}
+
+.info-description.expanded::-webkit-scrollbar {
+  width: 4px;
+}
+
+.info-description.expanded::-webkit-scrollbar-thumb {
+  background-color: var(--gold);
+  border-radius: 2px;
+}
+
+.toggle-desc-btn {
+  background: none;
+  border: none;
+  color: var(--gold-light);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 12px;
+  display: inline-block;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.toggle-desc-btn:active {
+  opacity: 0.7;
 }
 
 .close-btn {
