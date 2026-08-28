@@ -61,32 +61,94 @@ body {
 }
 
 .hud-frame-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: fill;
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.25));
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+  transition: filter 0.6s ease;
 }
 
-/* Subtle breathing glow for the golden ornaments */
+/* Gyroscope-moving Lines Layer: glowing, translucent, with smooth parallax */
+.hud-lines-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.65;
+  filter: drop-shadow(0 0 12px rgba(253, 224, 71, 0.75)) drop-shadow(0 0 4px rgba(245, 158, 11, 0.9)) brightness(1.25);
+  mix-blend-mode: screen;
+  will-change: transform;
+  transition: opacity 0.4s ease, filter 0.4s ease;
+  animation: line-pulse-glow 4s infinite ease-in-out;
+}
+
+/* Dissolve / Bloom Fade-in Animation on Start */
+.hud-dissolve {
+  animation: hud-dissolve-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes hud-dissolve-in {
+  0% {
+    opacity: 0;
+    filter: blur(10px) brightness(2) drop-shadow(0 0 25px rgba(253, 224, 71, 1));
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 0.85;
+    filter: blur(2px) brightness(1.4) drop-shadow(0 0 16px rgba(253, 224, 71, 0.8));
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px) brightness(1) drop-shadow(0 0 10px rgba(245, 158, 11, 0.25));
+    transform: scale(1);
+  }
+}
+
+/* Glowing pulse for the dynamic gyro lines */
+@keyframes line-pulse-glow {
+  0%, 100% {
+    opacity: 0.55;
+    filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.6)) brightness(1.15);
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 16px rgba(253, 224, 71, 0.95)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.6)) brightness(1.35);
+  }
+}
+
+/* Subtle breathing ambient aura */
 .hud-frame-container .hud-corner-glow {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 35px rgba(245, 158, 11, 0.12);
+  box-shadow: inset 0 0 40px rgba(245, 158, 11, 0.15);
   animation: hud-shimmer 3.5s infinite ease-in-out;
 }
 
 /* Active scanning / tracking state reactive styling */
 .hud-frame-container.tracking .hud-frame-img {
-  filter: drop-shadow(0 0 18px rgba(253, 224, 71, 0.55)) brightness(1.08);
+  filter: drop-shadow(0 0 20px rgba(253, 224, 71, 0.6)) brightness(1.1);
+}
+
+.hud-frame-container.tracking .hud-lines-img {
+  opacity: 0.95;
+  filter: drop-shadow(0 0 20px rgba(253, 224, 71, 1)) drop-shadow(0 0 35px rgba(245, 158, 11, 0.8)) brightness(1.45);
 }
 
 .hud-frame-container.panel-open .hud-frame-img {
   filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.3)) brightness(0.95);
   opacity: 0.85;
+}
+
+.hud-frame-container.panel-open .hud-lines-img {
+  opacity: 0.45;
 }
 
 @keyframes hud-shimmer {
@@ -116,7 +178,7 @@ body {
 /* ── Header ── */
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 14px 16px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);

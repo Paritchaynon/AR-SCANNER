@@ -7,6 +7,7 @@ import './App.css';
 import { targetsConfig } from './config/targetsConfig';
 import cardFrameImg from './assets/hud/card-frame.png';
 import goldBorderImg from './assets/hud/gold-border.png';
+import linesImg from './assets/hud/lines.png';
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -18,6 +19,7 @@ function App() {
   const [activeTarget, setActiveTarget] = useState(null);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [arEffectTargetId, setArEffectTargetId] = useState(null);
+  const [gyroOffset, setGyroOffset] = useState({ x: 0, y: 0 });
   
   const targetRefs = useRef([]);
   const detectionLocked = useRef(false);
@@ -112,11 +114,69 @@ function App() {
     };
   }, []);
 
+  // Gyroscope / Pointer tracking for subtle line motion
+  useEffect(() => {
+    let animId;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const handleOrientation = (e) => {
+      if (e.gamma !== null && e.beta !== null) {
+        // gamma: left/right [-90, 90], beta: front/back [-180, 180]
+        const clampedGamma = Math.max(-45, Math.min(45, e.gamma));
+        const clampedBeta = Math.max(-45, Math.min(45, e.beta - 45)); // Centered around 45deg tilt
+        targetX = (clampedGamma / 45) * 16; // Move subtly up to 16px
+        targetY = (clampedBeta / 45) * 16;
+      }
+    };
+
+    const handleMouseMove = (e) => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      targetX = ((e.clientX - centerX) / centerX) * 16;
+      targetY = ((e.clientY - centerY) / centerY) * 16;
+    };
+
+    const updateMotion = () => {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      setGyroOffset({
+        x: parseFloat(currentX.toFixed(2)),
+        y: parseFloat(currentY.toFixed(2))
+      });
+      animId = requestAnimationFrame(updateMotion);
+    };
+
+    window.addEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('mousemove', handleMouseMove);
+    animId = requestAnimationFrame(updateMotion);
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
   return (
     <div className="app-container">
-      {/* Lanna Cultural HUD Overlay Frame */}
+      {/* Lanna Cultural HUD Overlay Frame (Responsive) */}
       <div className={`hud-frame-container ${isTracking ? 'tracking' : ''} ${showPanel ? 'panel-open' : ''}`}>
-        <img src={cardFrameImg} alt="Lanna AR Frame" className="hud-frame-img" />
+        {/* Base Frame with Dissolve Fade-in */}
+        <img src={cardFrameImg} alt="Lanna AR Frame" className="hud-frame-img hud-dissolve" />
+        
+        {/* Glowing Gyro Lines Overlay with Dissolve & Translucency */}
+        <img 
+          src={linesImg} 
+          alt="Lanna Lines" 
+          className="hud-lines-img hud-lines-glow hud-dissolve" 
+          style={{
+            transform: `translate3d(${gyroOffset.x}px, ${gyroOffset.y}px, 0)`
+          }}
+        />
+
         <div className="hud-corner-glow"></div>
       </div>
 
@@ -128,10 +188,6 @@ function App() {
       {/* UI Overlay */}
       <div className="ui-layer">
         <header className="header">
-          <div className="title">
-            <Scan className="icon" size={20} />
-            <h1>{t('appTitle')}</h1>
-          </div>
           <div className="header-actions">
             <button className="fullscreen-btn" onClick={handleFullscreen} aria-label="Fullscreen">
               <Maximize2 size={16} />
