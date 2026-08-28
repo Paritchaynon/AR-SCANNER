@@ -5,6 +5,8 @@ import 'aframe';
 import 'mind-ar/dist/mindar-image-aframe.prod.js';
 import './App.css';
 import { targetsConfig } from './config/targetsConfig';
+import cardFrameImg from './assets/hud/card-frame.png';
+import goldBorderImg from './assets/hud/gold-border.png';
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -112,6 +114,12 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Lanna Cultural HUD Overlay Frame */}
+      <div className={`hud-frame-container ${isTracking ? 'tracking' : ''} ${showPanel ? 'panel-open' : ''}`}>
+        <img src={cardFrameImg} alt="Lanna AR Frame" className="hud-frame-img" />
+        <div className="hud-corner-glow"></div>
+      </div>
+
       {/* Lanna Decorative Borders */}
       <div className="lanna-top-ornament"></div>
       <div className="lanna-kanok-border"></div>
