@@ -480,23 +480,47 @@ body {
   transition: all 1.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Vertical light beam / cone */
-.hologram-light-cone {
+/* Celestial Light Beam shining from the absolute top of the screen (Subtle & Delicate) */
+.hologram-sky-beam {
   position: absolute;
-  top: -80px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 140px;
-  height: 260px;
-  background: linear-gradient(180deg, rgba(253, 224, 71, 0.35) 0%, rgba(245, 158, 11, 0.12) 60%, transparent 100%);
-  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  height: 60vh;
+  height: 60dvh;
+  background: linear-gradient(180deg, 
+    rgba(253, 224, 71, 0.18) 0%, 
+    rgba(245, 158, 11, 0.08) 50%, 
+    transparent 100%
+  );
+  clip-path: polygon(42% 0%, 58% 0%, 100% 100%, 0% 100%);
+  -webkit-clip-path: polygon(42% 0%, 58% 0%, 100% 100%, 0% 100%);
   pointer-events: none;
-  animation: cone-flicker 2.5s infinite alternate ease-in-out;
+  animation: sky-beam-pulse 4s infinite alternate ease-in-out;
+  transition: opacity 1.2s ease, filter 1.2s ease;
+  filter: blur(2px) drop-shadow(0 0 15px rgba(253, 224, 71, 0.25));
 }
 
-@keyframes cone-flicker {
-  0% { opacity: 0.65; transform: translateX(-50%) scaleX(0.95); }
-  100% { opacity: 0.95; transform: translateX(-50%) scaleX(1.05); }
+.hologram-sky-beam.dissolving {
+  opacity: 0.15;
+  filter: blur(6px);
+}
+
+.hologram-sky-beam.streaming {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+@keyframes sky-beam-pulse {
+  0% { 
+    opacity: 0.5; 
+    transform: translateX(-50%) scaleX(0.95);
+  }
+  100% { 
+    opacity: 0.75; 
+    transform: translateX(-50%) scaleX(1.05); 
+  }
 }
 
 /* Rotating target concentric rings on ground */

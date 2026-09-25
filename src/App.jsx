@@ -311,25 +311,20 @@ function App() {
         {/* Hologram -> Particles -> Stream to Information Animation Layer */}
         {hologramPhase && hologramPhase !== 'completed' && activeTarget && (
           <div className="hologram-scan-stage">
-            {/* Hologram Projection */}
-            <div className={`hologram-projection ${hologramPhase}`}>
-              <div className="hologram-light-cone"></div>
-              <div className="hologram-target-disc">
-                <div className="target-ring r1"></div>
-                <div className="target-ring r2"></div>
-                <div className="target-ring r3"></div>
-              </div>
+            {/* Celestial Sky Beam shining from absolute top of screen */}
+            <div className={`hologram-sky-beam ${hologramPhase}`}></div>
 
-              {/* Hologram Target Mystic Emblem Pod */}
+            {/* Simple & Clean Hologram Projection */}
+            <div className={`hologram-projection ${hologramPhase}`}>
+              {/* Minimal Hologram Target Mystic Emblem Pod */}
               <div className="hologram-avatar-pod">
                 <div className="hologram-emblem-core">
-                  <Sparkles size={52} className="hologram-symbol-sparkle" />
+                  <Sparkles size={46} className="hologram-symbol-sparkle" />
                 </div>
-                <div className="hologram-grid-scan"></div>
               </div>
 
               <div className="hologram-status-banner">
-                <Sparkles size={16} className="sparkle-pulse" />
+                <Sparkles size={15} className="sparkle-pulse" />
                 <span>
                   {hologramPhase === 'hologram' && t('hologramFound')}
                   {(hologramPhase === 'dissolving' || hologramPhase === 'streaming') && t('transmittingData')}
@@ -400,84 +395,48 @@ function App() {
               mindar-image-target={`targetIndex: ${target.index}`} 
               ref={el => targetRefs.current[idx] = el}
             >
-              {/* 2D Hologram Matrix projected on the physical scanned target */}
+              {/* Clean & Elegant 3D Hologram Ring in AR space */}
               {arEffectTargetId === target.id && (
                 <a-entity position="0 0 0.04">
-                  {/* Outer Hologram Target Frame */}
+                  {/* Subtle Blooming Halo Ring */}
                   <a-ring 
-                    radius-inner="0.48" 
-                    radius-outer="0.52" 
+                    radius-inner="0.46" 
+                    radius-outer="0.50" 
                     color="#FDE047" 
-                    material="shader: flat; transparent: true; opacity: 0.85"
-                    animation="property: rotation; to: 0 0 360; dur: 4000; loop: true; easing: linear"
-                    animation__fade="property: material.opacity; from: 0.85; to: 0; dur: 3000; easing: easeInQuad"
+                    material="shader: flat; transparent: true; opacity: 0.6"
+                    animation="property: rotation; to: 0 0 360; dur: 9000; loop: true; easing: linear"
+                    animation__fade="property: material.opacity; from: 0.6; to: 0; dur: 4000; easing: easeInQuad"
                   />
 
-                  {/* Concentric Geometric Hologram Ring */}
-                  <a-ring 
-                    radius-inner="0.32" 
-                    radius-outer="0.35" 
+                  {/* Single Clean Golden Torus with Gentle Depth */}
+                  <a-torus 
+                    radius="0.32" 
+                    radius-tubular="0.012" 
                     color="#F59E0B" 
                     material="shader: flat; transparent: true; opacity: 0.75"
-                    animation="property: rotation; to: 0 0 -360; dur: 5000; loop: true; easing: linear"
-                    animation__fade="property: material.opacity; from: 0.75; to: 0; dur: 2800; easing: easeInQuad"
+                    animation="property: rotation; to: 0 0 -360; dur: 7000; loop: true; easing: linear"
+                    animation__fade="property: material.opacity; from: 0.75; to: 0; dur: 3800; easing: easeInQuad"
                   />
 
-                  {/* Sacred Lanna Target Center Emblem */}
-                  <a-circle 
-                    radius="0.22" 
-                    color="#D97706" 
-                    material="shader: flat; transparent: true; opacity: 0.5"
-                    animation="property: scale; from: 0.8 0.8 0.8; to: 1.15 1.15 1.15; dur: 1000; dir: alternate; loop: true"
-                    animation__dissolve="property: material.opacity; from: 0.5; to: 0; dur: 2600; easing: easeInQuad"
+                  {/* Soft Radiant Center Sparkle */}
+                  <a-sphere 
+                    position="0 0 0.05" 
+                    radius="0.08" 
+                    color="#FDE047" 
+                    material="shader: flat; transparent: true; opacity: 0.7"
+                    animation="property: scale; from: 0.8 0.8 0.8; to: 1.15 1.15 1.15; dur: 1500; dir: alternate; loop: true; easing: easeInOutSine"
+                    animation__dissolve="property: material.opacity; from: 0.7; to: 0; dur: 3400; easing: easeInQuad"
                   />
 
-                  {/* Hologram Laser Scanning Beam traversing across the target */}
+                  {/* Subtle Laser Scan Beam */}
                   <a-plane 
-                    position="0 0 0.02" 
-                    height="0.04" 
-                    width="1" 
-                    color="#FDE047" 
-                    material="shader: flat; transparent: true; opacity: 0.9"
-                    animation="property: position; from: 0 -0.5 0.02; to: 0 0.5 0.02; dur: 1200; loop: true; dir: alternate; easing: linear"
-                    animation__fade="property: material.opacity; from: 0.9; to: 0; dur: 2500; easing: easeInQuad"
-                  />
-
-                  {/* Light Orbs / Particles bursting upward as hologram dissolves */}
-                  <a-sphere 
-                    radius="0.04" 
-                    color="#FDE047" 
-                    material="shader: flat" 
-                    animation="property: position; from: 0 0 0.02; to: 0.35 0.7 0.25; dur: 2000; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"
-                  />
-                  <a-sphere 
-                    radius="0.04" 
-                    color="#EF4444" 
-                    material="shader: flat" 
-                    animation="property: position; from: 0 0 0.02; to: -0.35 0.6 0.2; dur: 2200; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2200; easing: easeInQuad"
-                  />
-                  <a-sphere 
-                    radius="0.035" 
-                    color="#F59E0B" 
-                    material="shader: flat" 
-                    animation="property: position; from: 0 0 0.02; to: 0.15 0.8 0.15; dur: 1900; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 1900; easing: easeInQuad"
-                  />
-                  <a-sphere 
-                    radius="0.03" 
-                    color="#FDE047" 
-                    material="shader: flat" 
-                    animation="property: position; from: 0 0 0.02; to: -0.2 0.85 0.1; dur: 2100; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2100; easing: easeInQuad"
-                  />
-                  <a-sphere 
-                    radius="0.035" 
-                    color="#FDE047" 
-                    material="shader: flat" 
-                    animation="property: position; from: 0 0 0.02; to: 0 0.9 0.2; dur: 2400; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2400; easing: easeInQuad"
+                    position="0 0 0.04" 
+                    height="0.02" 
+                    width="0.9" 
+                    color="#FFFFFF" 
+                    material="shader: flat; transparent: true; opacity: 0.65"
+                    animation="property: position; from: 0 -0.45 0.04; to: 0 0.45 0.04; dur: 1500; loop: true; dir: alternate; easing: linear"
+                    animation__fade="property: material.opacity; from: 0.65; to: 0; dur: 3200; easing: easeInQuad"
                   />
                 </a-entity>
               )}

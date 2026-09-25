@@ -204,21 +204,18 @@
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 0;
   margin-bottom: 14px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(245, 158, 11, 0.4) transparent;
+  /* Hide scrollbar completely across all browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
 }
 
 .char-body-content::-webkit-scrollbar {
-  width: 4px;
-}
-.char-body-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-.char-body-content::-webkit-scrollbar-thumb {
-  background-color: rgba(245, 158, 11, 0.4);
-  border-radius: 4px;
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
 }
 
 .tab-pane {
