@@ -1,5 +1,12 @@
 {
-  "appTitle": "CNXDesignWeek",
+  "appTitle": "CNX Design Week",
+  "introTitle": "Tales of Lanna Golden Fairies",
+  "introSubtitle": "Chiang Mai Design Week AR Experience",
+  "introGuideTitle": "Quick Guide",
+  "introGuideStep1": "Point your camera at the Lanna golden artwork markers",
+  "introGuideStep2": "Watch the mystical hologram appear and dissolve into particles",
+  "introGuideStep3": "Gather the floating light particles to uncover the character's story",
+  "introStartBtn": "Open Book & Start Experience",
   "scanInstruction": "Point your camera at the target image",
   "language": "Language",
   "english": "English",
@@ -9,26 +16,111 @@
   "rotateDevice": "Please rotate your device to portrait mode",
   "readMore": "Read More",
   "readLess": "Read Less",
+  "tabStory": "Story",
+  "tabConcept": "Concept",
+  "tabInspiration": "Inspiration",
+  "tabColors": "Colors",
+  "hologramFound": "Hologram Target Detected...",
+  "transmittingData": "Transmitting Particle Data...",
   "targets": {
     "target_0": {
+      "name": "Botan",
       "title": "Botan",
-      "desc": "A fairy spirit in the form of a lion, serving as a guardian of abundance and Lanna art. It was born from a peony flower, a symbol of wealth, honor, and prosperity.\n\nIts appearance is inspired by the Singha guardian figure, combined with Lanna botanical motifs, intricate vine patterns, and golden accents. These elements represent the power of nature, sacredness, elegance, and the preservation of Lanna cultural heritage through a contemporary character design.\n\n“Bo-Tan” embodies the beliefs surrounding abundance, prosperity, good fortune, and protection, blending the symbolism of the peony, the guardian Singha, and the sacred power of nature according to Lanna traditions."
+      "concept": "Inspired by Lanna botanical motifs simplified into a Chibi character, utilizing Pareidolia to transform golden floral patterns into a contemporary fairy guardian.",
+      "inspiration": "Peony flower (wealth & nobility), Guardian Lion (courage & protection), and Lanna sacred gold patterns.",
+      "story": "When daylight shines upon the ancient temple gold patterns, Botan awakens to protect Lanna cultural heritage and inspire modern creative minds.",
+      "colorMeaning": "• Red: Life energy & auspicious blessing\n• Gold: Lanna sacred art & wisdom\n• Pink: Gentleness & peony grace\n• Pale Yellow: Light of nature & new beginnings",
+      "image": "/src/assets/image1.jpeg"
     },
     "target_1": {
-      "title": "Lion",
-      "desc": "A powerful magical lion with a radiant mane inspired by the sun. It stands for courage, leadership, and protection."
+      "name": "Ruangkham",
+      "title": "Ruangkham",
+      "concept": "A wildcat fairy guardian of seeds, fertility, and the growth of Lanna earth, derived from golden rice sheaf motifs.",
+      "inspiration": "Flowering rice sheaf pattern, agile wildcat, and protective nature spirits.",
+      "story": "Born under the full moon when moonlight hit golden rice patterns, Ruangkham spreads golden wings to revitalize crops and bless the land.",
+      "colorMeaning": "• Red: Vitality & courage\n• Gold: Sacred abundance\n• Emerald Green: Nature & hope",
+      "image": "/src/assets/image2.jpeg"
     },
     "target_2": {
-      "title": "Heart",
-      "desc": "A magical heart symbol that represents love, kindness, and human connection. Its glowing energy spreads warmth and hope."
+      "name": "Phrukkham",
+      "title": "Phrukkham",
+      "concept": "A botanical fairy born from the vitality of floral gold leaf motifs, guardian of seeds and blossoms.",
+      "inspiration": "Lanna lotus and floral vine motifs, friendly nature spirit.",
+      "story": "Phrukkham travels through forests, breathing golden light into dormant flora to restore vitality and joy.",
+      "colorMeaning": "• Emerald: Life force\n• Gold: Cultural heritage\n• Peach-Pink: Warmth & friendliness",
+      "image": "/src/assets/image4.jpeg"
     },
     "target_3": {
-      "title": "Deer",
-      "desc": "A graceful mystical deer symbolizing peace, harmony, and a deep connection with nature. It moves silently through enchanted forests."
+      "name": "Sakham",
+      "title": "Sakham",
+      "concept": "A fairy preserver of goldsmith craft and blooming botanical motifs.",
+      "inspiration": "Blooming flower buds, leaf wings, and heart-shaped red petal body.",
+      "story": "Flies across temple murals every night, dusting shimmering gold to keep heritage alive in people's hearts.",
+      "colorMeaning": "• Gold: Sacred art\n• Red: Life & bravery\n• Soft Yellow: Blossoming freedom",
+      "image": "/src/assets/image5.png"
     },
     "target_4": {
-      "title": "Leaf",
-      "desc": "A magical leaf infused with the spirit of nature. It represents growth, renewal, and the balance of life."
+      "name": "Babua",
+      "title": "Babua",
+      "concept": "Fairy of serenity and pure consciousness, blending the royal white elephant with the divine lotus.",
+      "inspiration": "Auspicious white elephant and blooming lotus blossoms.",
+      "story": "Hovers above tranquil temple pools, spreading ripples of calm and washing away worries.",
+      "colorMeaning": "• Lotus Pink: Pure love & tenderness\n• Gold: Sacred heritage\n• White: Purity",
+      "image": "/src/assets/image6.jpeg"
+    },
+    "target_5": {
+      "name": "Binkham",
+      "title": "Binkham",
+      "concept": "A manta ray fairy gliding through nocturnal sky currents, bearing hope and uncovered memories.",
+      "inspiration": "Manta ray elegance and Kanok vine curves.",
+      "story": "Seeing Binkham glide by reminds wanderers that hope remains alive, illuminating forgotten artistic treasures.",
+      "colorMeaning": "• Deep Indigo: Mystery & night sky\n• Gold: Guiding hope\n• Soft White: Sincerity",
+      "image": "/src/assets/image7.jpeg"
+    },
+    "target_6": {
+      "name": "Plakhaokham",
+      "title": "Plakhaokham",
+      "concept": "A golden fish fairy embodying the rhythmic movement of aquatic life and rice grain patterns.",
+      "inspiration": "Symmetrical rice sheaf motifs and flowing fins.",
+      "story": "Awakens from morning dew to remind onlookers to appreciate the subtle beauty in overlooked details.",
+      "colorMeaning": "• Red: Life energy\n• Gold: Prosperity & wisdom",
+      "image": "/src/assets/image9.jpeg"
+    },
+    "target_7": {
+      "name": "Plalaikham",
+      "title": "Plalaikham",
+      "concept": "Fairy of the luminous river, swimming across both water and golden light streams.",
+      "inspiration": "Ping River ecosystem and traditional Lanna foliage patterns.",
+      "story": "Touches faded wall patterns with its tail, bringing them into bright visibility.",
+      "colorMeaning": "• Gold: Precious heritage\n• Rosy Pink: Vibrant life\n• Cyan: Serene water",
+      "image": "/src/assets/image10.jpeg"
+    },
+    "target_8": {
+      "name": "Dokloy",
+      "title": "Dokloy",
+      "concept": "A cheerful miniature fairy of smiling floral light, reminding everyone that small flowers bring great delight.",
+      "inspiration": "Floating floral filler motifs in Lanna gold stencil art.",
+      "story": "Detached from temple walls into mid-air, spreading sparkles of joy and smiles wherever it wanders.",
+      "colorMeaning": "• Bright Red: Joyful energy\n• Gold: Luminous cheerfulness",
+      "image": "/src/assets/image11.jpeg"
+    },
+    "target_9": {
+      "name": "Yam Kham",
+      "title": "Yam Kham",
+      "concept": "Fairy of four-directional symmetry from Pra-Jam-Yam guardian flower patterns.",
+      "inspiration": "Pra-Jam-Yam sacred protective geometry and floral nectar.",
+      "story": "Listens to ancient stories behind temple pillars and stores them as radiant gems in its heart.",
+      "colorMeaning": "• Petal Pink: Gentle compassion\n• Golden Yellow: Treasured memories",
+      "image": "/src/assets/image8.jpeg"
+    },
+    "target_10": {
+      "name": "Phrai Ruangkham",
+      "title": "Phrai Ruangkham",
+      "concept": "A mystical jellyfish fairy gliding through streams of golden memories.",
+      "inspiration": "Jellyfish rhythm combined with branching golden rice sheaf tendrils.",
+      "story": "Gathering faint sparks from high corners, helping people notice subtle beauty with mindful attention.",
+      "colorMeaning": "• Pink & Violet: Gentleness & fairy magic\n• Gold: Lanna artistry\n• Emerald: Vitality & nature",
+      "image": "/src/assets/image12.jpeg"
     }
   }
 }
