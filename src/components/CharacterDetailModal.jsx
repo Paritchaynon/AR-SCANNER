@@ -4,40 +4,62 @@ import { Sparkles, BookOpen, Compass, Palette, X, ChevronRight } from 'lucide-re
 import './CharacterDetailModal.css';
 
 export function CharacterDetailModal({ character, onClose, isGatheringParticles }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('story'); // 'story' | 'concept' | 'inspiration' | 'colorMeaning'
 
   if (!character) return null;
 
+  // Dynamically resolve character translation for current language so changing language immediately reflects
+  const targetId = character.id;
+  const translated = targetId ? (t(`targets.${targetId}`, { returnObjects: true }) || {}) : {};
+  const charData = {
+    ...character,
+    name: translated.name || character.name || character.title,
+    title: translated.title || character.title,
+    story: translated.story || character.story,
+    concept: translated.concept || character.concept,
+    inspiration: translated.inspiration || character.inspiration,
+    colorMeaning: translated.colorMeaning || character.colorMeaning,
+  };
+
   return (
-    <div className={`char-modal-backdrop ${isGatheringParticles ? 'particles-gathering' : 'particles-completed'}`}>
-      <div className="char-card-container">
+    <div 
+      className={`char-modal-backdrop ${isGatheringParticles ? 'particles-gathering' : 'particles-completed'}`}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div 
+        className="char-card-container"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Shimmering Gold Frame Overlay */}
-        <div className="char-card-glow"></div>
         <div className="char-card-kanok tl"></div>
         <div className="char-card-kanok tr"></div>
         <div className="char-card-kanok bl"></div>
         <div className="char-card-kanok br"></div>
 
         {/* Close Button */}
-        <button className="char-close-btn" onClick={onClose} aria-label="Close">
+        <button 
+          className="char-close-btn" 
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }} 
+          aria-label="Close"
+        >
           <X size={18} />
         </button>
 
-        {/* Character Avatar / Hologram preview */}
+        {/* Character Cultural Emblem / Mystical Crest */}
         <div className="char-avatar-wrapper">
           <div className="char-avatar-ring"></div>
-          {character.image && (
-            <img 
-              src={character.image} 
-              alt={character.name} 
-              className="char-avatar-img"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }} 
-            />
-          )}
+          <div className="char-avatar-emblem">
+            <Sparkles size={38} className="emblem-core-sparkle" />
+          </div>
           <div className="char-hologram-scanline"></div>
         </div>
 
@@ -45,9 +67,9 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
         <div className="char-meta">
           <span className="char-badge">
             <Sparkles size={13} />
-            Lanna Spirit Guardian
+            {t('lannaGuardian')}
           </span>
-          <h2 className="char-name">{character.name || character.title}</h2>
+          <h2 className="char-name">{charData.name || charData.title}</h2>
         </div>
 
         {/* Information Category Navigation Tabs */}
@@ -86,36 +108,42 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
         <div className="char-body-content">
           {activeTab === 'story' && (
             <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">เรื่องราวของคาแรคเตอร์</h4>
-              <p className="section-text">{character.story}</p>
+              <h4 className="section-label">{t('labelStory')}</h4>
+              <p className="section-text">{charData.story}</p>
             </div>
           )}
 
           {activeTab === 'concept' && (
             <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">แนวคิดของตัวละคร (Concept)</h4>
-              <p className="section-text">{character.concept}</p>
+              <h4 className="section-label">{t('labelConcept')}</h4>
+              <p className="section-text">{charData.concept}</p>
             </div>
           )}
 
           {activeTab === 'inspiration' && (
             <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">แรงบันดาลใจในการออกแบบ</h4>
-              <p className="section-text multi-line">{character.inspiration}</p>
+              <h4 className="section-label">{t('labelInspiration')}</h4>
+              <p className="section-text multi-line">{charData.inspiration}</p>
             </div>
           )}
 
           {activeTab === 'colorMeaning' && (
             <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">ความหมายของสี</h4>
-              <p className="section-text multi-line">{character.colorMeaning}</p>
+              <h4 className="section-label">{t('labelColors')}</h4>
+              <p className="section-text multi-line">{charData.colorMeaning}</p>
             </div>
           )}
         </div>
 
         {/* Dismiss Bottom Button */}
         <div className="char-modal-footer">
-          <button className="confirm-dismiss-btn" onClick={onClose}>
+          <button 
+            className="confirm-dismiss-btn" 
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+          >
             <span>{t('close')}</span>
           </button>
         </div>

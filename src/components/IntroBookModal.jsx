@@ -9,7 +9,20 @@ export function IntroBookModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleStart = () => {
+  const handleStart = async () => {
+    // Proactively prompt user for camera permission upon user interaction
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        // Stop stream immediately so MindAR takes over the camera cleanly
+        stream.getTracks().forEach(track => track.stop());
+      }
+    } catch (err) {
+      console.warn('Camera permission prompt:', err);
+    }
+
     setIsFlipping(true);
     // Page flip duration 900ms before dismissing modal
     setTimeout(() => {

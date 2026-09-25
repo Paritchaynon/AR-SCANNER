@@ -20,6 +20,11 @@
   "tabConcept": "Concept",
   "tabInspiration": "Inspiration",
   "tabColors": "Colors",
+  "labelStory": "Character Story",
+  "labelConcept": "Character Concept",
+  "labelInspiration": "Design Inspiration",
+  "labelColors": "Color Meanings",
+  "lannaGuardian": "Lanna Spirit Guardian",
   "hologramFound": "Hologram Target Detected...",
   "transmittingData": "Transmitting Particle Data...",
   "targets": {

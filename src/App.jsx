@@ -61,6 +61,12 @@ function App() {
   const detectionLocked = useRef(false);
   const currentTargetRef = useRef(null);
   const trackingRef = useRef(false);
+  const animTimeoutsRef = useRef([]);
+
+  const clearAnimTimeouts = () => {
+    animTimeoutsRef.current.forEach(id => clearTimeout(id));
+    animTimeoutsRef.current = [];
+  };
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'th' : 'en';
@@ -96,13 +102,13 @@ function App() {
     setHologramPhase('hologram');
     setShowCharacterModal(false);
 
-    // Generate random particle streams for dissolve animation
-    const particles = Array.from({ length: 32 }).map((_, i) => {
-      const angle = (i / 32) * Math.PI * 2;
-      const distance = 40 + Math.random() * 90;
-      const delay = Math.random() * 0.4;
-      const size = 4 + Math.random() * 8;
-      const duration = 1.0 + Math.random() * 0.6;
+    // Generate gradual, smoothly dispersed particle streams
+    const particles = Array.from({ length: 36 }).map((_, i) => {
+      const angle = (i / 36) * Math.PI * 2;
+      const distance = 45 + Math.random() * 80;
+      const delay = (i % 6) * 0.12 + Math.random() * 0.15;
+      const size = 5 + Math.random() * 7;
+      const duration = 2.0 + Math.random() * 0.8;
       return {
         id: i,
         dx: Math.cos(angle) * distance,
@@ -114,34 +120,36 @@ function App() {
     });
     setStreamParticles(particles);
 
-    // Start dissolving hologram after 1.1s
-    setTimeout(() => {
+    // Phase 1 -> 2: Hologram gently expands and dissolves in parallel with particles (after 1.8s)
+    const t1 = setTimeout(() => {
       setHologramPhase('dissolving');
-    }, 1100);
+    }, 1800);
 
-    // Stream particles into info data container after 2.0s
-    setTimeout(() => {
+    // Phase 2 -> 3: Dissolved particles gently stream downwards into receiver (after 3.4s)
+    const t2 = setTimeout(() => {
       setHologramPhase('streaming');
-    }, 2000);
+    }, 3400);
 
-    // Fully assemble character information card after 3.2s
-    setTimeout(() => {
+    // Phase 3 -> 4: Character information smoothly reveals (after 5.2s)
+    const t3 = setTimeout(() => {
       setHologramPhase('completed');
       setArEffectTargetId(null);
       setShowCharacterModal(true);
-    }, 3200);
+    }, 5200);
+
+    animTimeoutsRef.current = [t1, t2, t3];
   };
 
   const handleCloseCharacterModal = () => {
+    clearAnimTimeouts();
     setShowCharacterModal(false);
     setHologramPhase(null);
-    detectionLocked.current = false; // Unlock detection
-
-    // If still tracking same/another target, re-trigger smoothly
-    if (trackingRef.current && currentTargetRef.current) {
-      detectionLocked.current = true;
-      triggerDetection(currentTargetRef.current);
-    }
+    setArEffectTargetId(null);
+    
+    // Unlock detection after a 1.5s grace cooldown so closing works and does not instantly pop back up
+    setTimeout(() => {
+      detectionLocked.current = false;
+    }, 1500);
   };
 
   const handleCloseIntro = () => {
@@ -312,15 +320,11 @@ function App() {
                 <div className="target-ring r3"></div>
               </div>
 
-              {/* Hologram Target Image/Silhouette */}
+              {/* Hologram Target Mystic Emblem Pod */}
               <div className="hologram-avatar-pod">
-                {activeTarget.image && (
-                  <img 
-                    src={activeTarget.image} 
-                    alt={activeTarget.name} 
-                    className="hologram-entity-img" 
-                  />
-                )}
+                <div className="hologram-emblem-core">
+                  <Sparkles size={52} className="hologram-symbol-sparkle" />
+                </div>
                 <div className="hologram-grid-scan"></div>
               </div>
 
@@ -357,17 +361,17 @@ function App() {
             </div>
           </div>
         )}
-
-        {/* Character Detail Modal (Rich info: Name, Concept, Inspiration, Story, Colors) */}
-        {showCharacterModal && activeTarget && (
-          <CharacterDetailModal 
-            character={activeTarget}
-            onClose={handleCloseCharacterModal}
-          />
-        )}
       </div>
 
-      {/* AR Scene with Multi-target Support & 3D Aura Effect */}
+      {/* Character Detail Modal (Rich info: Name, Concept, Inspiration, Story, Colors) */}
+      {showCharacterModal && activeTarget && (
+        <CharacterDetailModal 
+          character={activeTarget}
+          onClose={handleCloseCharacterModal}
+        />
+      )}
+
+      {/* AR Scene with Multi-target Support & 2D Hologram in 3D space */}
       <div className="ar-container">
         <a-scene
           mindar-image={`imageTargetSrc: ${import.meta.env.BASE_URL}targets.mind; autoStart: true; uiLoading: no; uiScanning: no`}
@@ -377,6 +381,17 @@ function App() {
           xr-mode-ui="enabled: false"
           device-orientation-permission-ui="enabled: false"
         >
+          <a-assets>
+            {targetsConfig.map(t => (
+              <img 
+                key={`asset-${t.id}`} 
+                id={`img-${t.id}`} 
+                src={imageMap[t.id] || t.data?.image} 
+                crossOrigin="anonymous" 
+              />
+            ))}
+          </a-assets>
+
           <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
           {targetsConfig.map((target, idx) => (
@@ -385,47 +400,84 @@ function App() {
               mindar-image-target={`targetIndex: ${target.index}`} 
               ref={el => targetRefs.current[idx] = el}
             >
-              {/* 3D Holographic Cylinder and Floating Light Particles on Target */}
+              {/* 2D Hologram Matrix projected on the physical scanned target */}
               {arEffectTargetId === target.id && (
-                <a-entity>
-                  {/* Holographic Glowing Base Ring */}
+                <a-entity position="0 0 0.04">
+                  {/* Outer Hologram Target Frame */}
                   <a-ring 
-                    radius-inner="0.3" 
-                    radius-outer="0.45" 
+                    radius-inner="0.48" 
+                    radius-outer="0.52" 
                     color="#FDE047" 
-                    material="shader: flat; transparent: true; opacity: 0.8"
-                    animation="property: rotation; to: 0 0 360; dur: 3000; loop: true; easing: linear"
+                    material="shader: flat; transparent: true; opacity: 0.85"
+                    animation="property: rotation; to: 0 0 360; dur: 4000; loop: true; easing: linear"
+                    animation__fade="property: material.opacity; from: 0.85; to: 0; dur: 3000; easing: easeInQuad"
                   />
-                  {/* Floating Hologram Upward Beams */}
-                  <a-cylinder 
-                    radius="0.35" 
-                    height="0.6" 
+
+                  {/* Concentric Geometric Hologram Ring */}
+                  <a-ring 
+                    radius-inner="0.32" 
+                    radius-outer="0.35" 
                     color="#F59E0B" 
-                    material="shader: flat; transparent: true; opacity: 0.25; side: double; wireframe: true"
-                    position="0 0.3 0"
-                    animation="property: rotation; to: 0 360 0; dur: 4000; loop: true; easing: linear"
+                    material="shader: flat; transparent: true; opacity: 0.75"
+                    animation="property: rotation; to: 0 0 -360; dur: 5000; loop: true; easing: linear"
+                    animation__fade="property: material.opacity; from: 0.75; to: 0; dur: 2800; easing: easeInQuad"
                   />
-                  {/* Ascending Light Orbs */}
+
+                  {/* Sacred Lanna Target Center Emblem */}
+                  <a-circle 
+                    radius="0.22" 
+                    color="#D97706" 
+                    material="shader: flat; transparent: true; opacity: 0.5"
+                    animation="property: scale; from: 0.8 0.8 0.8; to: 1.15 1.15 1.15; dur: 1000; dir: alternate; loop: true"
+                    animation__dissolve="property: material.opacity; from: 0.5; to: 0; dur: 2600; easing: easeInQuad"
+                  />
+
+                  {/* Hologram Laser Scanning Beam traversing across the target */}
+                  <a-plane 
+                    position="0 0 0.02" 
+                    height="0.04" 
+                    width="1" 
+                    color="#FDE047" 
+                    material="shader: flat; transparent: true; opacity: 0.9"
+                    animation="property: position; from: 0 -0.5 0.02; to: 0 0.5 0.02; dur: 1200; loop: true; dir: alternate; easing: linear"
+                    animation__fade="property: material.opacity; from: 0.9; to: 0; dur: 2500; easing: easeInQuad"
+                  />
+
+                  {/* Light Orbs / Particles bursting upward as hologram dissolves */}
                   <a-sphere 
                     radius="0.04" 
                     color="#FDE047" 
                     material="shader: flat" 
-                    animation="property: position; from: 0 0 0; to: 0.25 0.9 0.1; dur: 2200; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2200; easing: easeInQuad"
+                    animation="property: position; from: 0 0 0.02; to: 0.35 0.7 0.25; dur: 2000; easing: easeOutQuad" 
+                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"
                   />
                   <a-sphere 
-                    radius="0.05" 
+                    radius="0.04" 
                     color="#EF4444" 
                     material="shader: flat" 
-                    animation="property: position; from: 0 0 0; to: -0.2 0.75 -0.15; dur: 2400; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2400; easing: easeInQuad"
+                    animation="property: position; from: 0 0 0.02; to: -0.35 0.6 0.2; dur: 2200; easing: easeOutQuad" 
+                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2200; easing: easeInQuad"
                   />
                   <a-sphere 
                     radius="0.035" 
                     color="#F59E0B" 
                     material="shader: flat" 
-                    animation="property: position; from: 0 0 0; to: 0.15 0.85 -0.2; dur: 2000; easing: easeOutQuad" 
-                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2000; easing: easeInQuad"
+                    animation="property: position; from: 0 0 0.02; to: 0.15 0.8 0.15; dur: 1900; easing: easeOutQuad" 
+                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 1900; easing: easeInQuad"
+                  />
+                  <a-sphere 
+                    radius="0.03" 
+                    color="#FDE047" 
+                    material="shader: flat" 
+                    animation="property: position; from: 0 0 0.02; to: -0.2 0.85 0.1; dur: 2100; easing: easeOutQuad" 
+                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2100; easing: easeInQuad"
+                  />
+                  <a-sphere 
+                    radius="0.035" 
+                    color="#FDE047" 
+                    material="shader: flat" 
+                    animation="property: position; from: 0 0 0.02; to: 0 0.9 0.2; dur: 2400; easing: easeOutQuad" 
+                    animation__scale="property: scale; from: 1 1 1; to: 0 0 0; dur: 2400; easing: easeInQuad"
                   />
                 </a-entity>
               )}
