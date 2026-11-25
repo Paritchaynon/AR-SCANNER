@@ -38,6 +38,32 @@ const imageMap = {
   target_10: img12
 };
 
+const motes = Array.from({ length: 32 }, (_, i) => {
+  const angle = i * 2.4;
+  const spread = 26 + (i % 7) * 8;
+  return {
+    '--fan-x': `${Math.cos(angle) * spread}px`,
+    '--fan-y': `${Math.sin(angle) * spread - 20}px`,
+    '--delay': `${(i % 8) * 38}ms`,
+    '--dur': `${1080 + (i % 3) * 85}ms`,
+    '--size': `${3 + i % 4}px`,
+  };
+});
+
+function projectedOrigin(anchor, stage) {
+  const { canvas, camera } = anchor.sceneEl;
+  if (!canvas || !camera || !stage || !anchor.object3D.visible) return null;
+  const point = new window.AFRAME.THREE.Vector3(0, 0, .24);
+  anchor.object3D.localToWorld(point).project(camera);
+  if (![point.x, point.y, point.z].every(Number.isFinite) || Math.abs(point.z) > 1) return null;
+  const view = canvas.getBoundingClientRect();
+  const bounds = stage.getBoundingClientRect();
+  return {
+    '--origin-x': `${view.left + (1 + point.x) * view.width / 2 - bounds.left - bounds.width / 2}px`,
+    '--origin-y': `${view.top + (1 - point.y) * view.height / 2 - bounds.top - bounds.height / 2}px`,
+  };
+}
+
 function App() {
   const { t, i18n } = useTranslation();
   
@@ -49,6 +75,8 @@ function App() {
   const [isTracking, setIsTracking] = useState(false);
   const [activeTarget, setActiveTarget] = useState(null);
   const [arEffectTargetId, setArEffectTargetId] = useState(null);
+  const [captureOrigin, setCaptureOrigin] = useState(null);
+  const captureStage = useRef(null);
   const hudLines = useRef(null);
   const scene = useRef(null);
   const [showCharacterModal, setShowCharacterModal] = useState(false);
@@ -86,19 +114,23 @@ function App() {
     const cleanups = targetRefs.current.flatMap((el, index) => {
       if (!el) return [];
       const target = targetsConfig[index];
+      let lastOrigin = null;
       function found() {
         if (document.hidden) return;
         setIsTracking(true);
         if (detectionLocked.current) return;
         detectionLocked.current = true;
+        lastOrigin = null;
         setActiveTarget({ ...target.data, id: target.id, image: imageMap[target.id] || target.data?.image });
         setArEffectTargetId(target.id);
         revealTimer.current = setTimeout(() => {
-          setArEffectTargetId(null);
-          setShowCharacterModal(true);
-        }, 850);
+          setCaptureOrigin(projectedOrigin(el, captureStage.current) || lastOrigin || {});
+        }, 900);
       }
-      const lost = () => setIsTracking(false);
+      const lost = () => {
+        lastOrigin = projectedOrigin(el, captureStage.current) || lastOrigin;
+        setIsTracking(false);
+      };
       el.addEventListener('targetFound', found);
       el.addEventListener('targetLost', lost);
       if (el.object3D?.visible && el.components?.['mindar-image-target']?.invisibleMatrix) found();
@@ -112,6 +144,17 @@ function App() {
       clearTimeout(revealTimer.current);
     };
   }, [hasStartedApp]);
+
+  useEffect(() => {
+    if (!captureOrigin) return;
+    // The final mote lands at 1516 ms. Hold the collected light briefly before revealing the card.
+    const timer = setTimeout(() => {
+      setArEffectTargetId(null);
+      setCaptureOrigin(null);
+      setShowCharacterModal(true);
+    }, 1740);
+    return () => clearTimeout(timer);
+  }, [captureOrigin]);
 
   useEffect(() => {
     const el = scene.current;
@@ -267,9 +310,18 @@ function App() {
           </div>
         )}
 
-        {arEffectTargetId && <div className="hologram-scan-stage"><div className="world-scan-status">
-          <div className="hologram-status-banner"><Sparkles size={15} />{t('hologramFound')}</div>
-        </div></div>}
+        {arEffectTargetId && (
+          <div className="hologram-scan-stage" ref={captureStage} style={captureOrigin || undefined}>
+            {captureOrigin ? <>
+              <div className="capture-flight" aria-hidden="true">
+                {motes.map((style, i) => <i key={i} className="stream-particle" style={style} />)}
+              </div>
+              <div className="capture-core" aria-hidden="true" />
+            </> : <div className="world-scan-status">
+              <div className="hologram-status-banner"><Sparkles size={15} />{t('hologramFound')}</div>
+            </div>}
+          </div>
+        )}
       </div>
 
       {/* Character Detail Modal (Rich info: Name, Concept, Inspiration, Story, Colors) */}
@@ -309,7 +361,7 @@ function App() {
               mindar-image-target={`targetIndex: ${target.index}`} 
               ref={el => targetRefs.current[idx] = el}
             >
-              {arEffectTargetId === target.id && <a-entity guardian-field="" />}
+              {arEffectTargetId === target.id && !captureOrigin && <a-entity guardian-field="" />}
             </a-entity>
           ))}
         </a-scene>

@@ -856,3 +856,30 @@ body {
   box-shadow: 0 0 5px #91cbe9;
 }
 .world-scan-status { position: absolute; bottom: 16%; }
+.capture-flight .stream-particle {
+  width: var(--size);
+  height: var(--size);
+  animation: capture-mote var(--dur) cubic-bezier(.3,.12,.37,1) var(--delay) both;
+}
+@keyframes capture-mote {
+  0% { opacity: 0; transform: translate(var(--origin-x, 0px), var(--origin-y, 0px)) scale(.25); }
+  12% { opacity: 1; }
+  33% { transform: translate(calc(var(--origin-x, 0px) + var(--fan-x)), calc(var(--origin-y, 0px) + var(--fan-y))) scale(1.15); }
+  75% { opacity: .95; transform: translate(calc(var(--origin-x, 0px) * .29 + var(--fan-x) * .7), calc(var(--origin-y, 0px) * .29 + 20cqh)) scale(.88); }
+  100% { opacity: 0; transform: translate(0, calc(50cqh - var(--receiver-center))) scale(.32); }
+}
+.capture-core {
+  position: absolute;
+  left: 50%; bottom: var(--receiver-center);
+  width: 24px; height: 24px;
+  translate: -50% 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, white, #ffebad 24%, #84efeaaa 45%, transparent 70%);
+  animation: capture-seal 1720ms ease-out both;
+}
+@keyframes capture-seal {
+  0%, 40% { opacity: 0; transform: scale(.2); }
+  80% { opacity: .9; transform: scale(.9); }
+  90% { opacity: 1; transform: scale(2); }
+  100% { opacity: .3; transform: scale(.45); }
+}
