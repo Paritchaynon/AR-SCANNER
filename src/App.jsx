@@ -49,24 +49,12 @@ function App() {
   const [isTracking, setIsTracking] = useState(false);
   const [activeTarget, setActiveTarget] = useState(null);
   const [arEffectTargetId, setArEffectTargetId] = useState(null);
-  const [gyroOffset, setGyroOffset] = useState({ x: 0, y: 0 });
-
-  // Hologram to Particles Dissolve flow states
-  // hologramPhase: null | 'hologram' | 'dissolving' | 'streaming' | 'completed'
-  const [hologramPhase, setHologramPhase] = useState(null);
-  const [streamParticles, setStreamParticles] = useState([]);
+  const hudLines = useRef(null);
+  const scene = useRef(null);
   const [showCharacterModal, setShowCharacterModal] = useState(false);
-  
   const targetRefs = useRef([]);
   const detectionLocked = useRef(false);
-  const currentTargetRef = useRef(null);
-  const trackingRef = useRef(false);
-  const animTimeoutsRef = useRef([]);
-
-  const clearAnimTimeouts = () => {
-    animTimeoutsRef.current.forEach(id => clearTimeout(id));
-    animTimeoutsRef.current = [];
-  };
+  const revealTimer = useRef(null);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'th' : 'en';
@@ -83,75 +71,9 @@ function App() {
     }
   };
 
-  // Trigger when target found:
-  // Phase 1 (0-1200ms): Target Hologram projects upwards with light beams & scanning grid
-  // Phase 2 (1200-2400ms): Hologram dissolves into 30+ glowing golden/magic particles
-  // Phase 3 (2400-3600ms): Particles stream/fly into the bottom center info container
-  // Phase 4 (3600ms+): Information reveals character card completely
-  const triggerDetection = (targetData) => {
-    // Resolve dynamic character info from translation
-    const rawTarget = t(`targets.${targetData.id}`, { returnObjects: true }) || targetData.data || {};
-    const characterData = {
-      ...rawTarget,
-      id: targetData.id,
-      image: imageMap[targetData.id] || targetData.data?.image
-    };
-
-    setActiveTarget(characterData);
-    setArEffectTargetId(targetData.id);
-    setHologramPhase('hologram');
-    setShowCharacterModal(false);
-
-    // Generate gradual, smoothly dispersed particle streams
-    const particles = Array.from({ length: 36 }).map((_, i) => {
-      const angle = (i / 36) * Math.PI * 2;
-      const distance = 45 + Math.random() * 80;
-      const delay = (i % 6) * 0.12 + Math.random() * 0.15;
-      const size = 2 + Math.random() * 4;
-      const duration = 2.35 + Math.random() * 0.4;
-      return {
-        id: i,
-        dx: Math.cos(angle) * distance,
-        dy: Math.sin(angle) * distance,
-        delay,
-        size,
-        duration
-      };
-    });
-    setStreamParticles(particles);
-
-    // Phase 1 -> 2: Hologram gently expands and dissolves in parallel with particles (after 1.8s)
-    const t1 = setTimeout(() => {
-      setHologramPhase('dissolving');
-    }, 1800);
-
-    // Phase 2 -> 3: Dissolved particles gently stream downwards into receiver (after 3.4s)
-    const t2 = setTimeout(() => {
-      setHologramPhase('streaming');
-    }, 3400);
-
-    animTimeoutsRef.current = [t1, t2];
-  };
-
-  const finishParticleFlight = () => {
-    setHologramPhase('completed');
-    setArEffectTargetId(null);
-    setShowCharacterModal(true);
-  };
-
-  const lastParticle = streamParticles.reduce((last, p) =>
-    !last || p.delay + p.duration > last.delay + last.duration ? p : last, null);
-
   const handleCloseCharacterModal = () => {
-    clearAnimTimeouts();
     setShowCharacterModal(false);
-    setHologramPhase(null);
-    setArEffectTargetId(null);
-    
-    // Unlock detection after a 1.5s grace cooldown so closing works and does not instantly pop back up
-    setTimeout(() => {
-      detectionLocked.current = false;
-    }, 1500);
+    detectionLocked.current = false;
   };
 
   const handleCloseIntro = () => {
@@ -160,47 +82,86 @@ function App() {
   };
 
   useEffect(() => {
-    const cleanupFns = [];
-    
-    targetRefs.current.forEach((targetEl, index) => {
-      if (!targetEl) return;
-      
-      const targetData = targetsConfig[index];
-      if (!targetData) return;
-      
-      const handleTargetFound = () => {
-        console.log(`Target ${targetData.index} found!`);
+    if (!hasStartedApp) return;
+    const cleanups = targetRefs.current.flatMap((el, index) => {
+      if (!el) return [];
+      const target = targetsConfig[index];
+      function found() {
+        if (document.hidden) return;
         setIsTracking(true);
-        trackingRef.current = true;
-        currentTargetRef.current = targetData;
-        
-        // Prevent re-triggering if already locked or user in intro
         if (detectionLocked.current) return;
-        
         detectionLocked.current = true;
-        triggerDetection(targetData);
-      };
-      
-      const handleTargetLost = () => {
-        console.log(`Target ${targetData.index} lost!`);
-        setIsTracking(false);
-        trackingRef.current = false;
-        if (currentTargetRef.current?.id === targetData.id) {
-          currentTargetRef.current = null;
-        }
-      };
-
-      targetEl.addEventListener('targetFound', handleTargetFound);
-      targetEl.addEventListener('targetLost', handleTargetLost);
-      
-      cleanupFns.push(() => {
-        targetEl.removeEventListener('targetFound', handleTargetFound);
-        targetEl.removeEventListener('targetLost', handleTargetLost);
-      });
+        setActiveTarget({ ...target.data, id: target.id, image: imageMap[target.id] || target.data?.image });
+        setArEffectTargetId(target.id);
+        revealTimer.current = setTimeout(() => {
+          setArEffectTargetId(null);
+          setShowCharacterModal(true);
+        }, 850);
+      }
+      const lost = () => setIsTracking(false);
+      el.addEventListener('targetFound', found);
+      el.addEventListener('targetLost', lost);
+      if (el.object3D?.visible && el.components?.['mindar-image-target']?.invisibleMatrix) found();
+      return [() => {
+        el.removeEventListener('targetFound', found);
+        el.removeEventListener('targetLost', lost);
+      }];
     });
-
     return () => {
-      cleanupFns.forEach(fn => fn());
+      cleanups.forEach(cleanup => cleanup());
+      clearTimeout(revealTimer.current);
+    };
+  }, [hasStartedApp]);
+
+  useEffect(() => {
+    const el = scene.current;
+    let ready = false;
+    let suspended = false;
+    let watchdog;
+    const system = () => el.systems?.['mindar-image-system'];
+    function suspend() {
+      clearTimeout(watchdog);
+      suspended = true;
+      if (ready) system().pause();
+    }
+    function resume() {
+      if (!ready || !suspended || document.hidden) return;
+      suspended = false;
+      const ar = system();
+      const video = ar.video;
+      function restart() {
+        if (document.hidden || !ready) return;
+        ready = false;
+        ar.stop();
+        for (const anchor of ar.anchorEntities) anchor.el.updateWorldMatrix(null);
+        ar.start();
+      }
+      if (video.srcObject?.getVideoTracks()[0]?.readyState !== 'live') {
+        restart();
+        return;
+      }
+      const previousTime = video.currentTime;
+      ar.unpause();
+      watchdog = setTimeout(() => {
+        if (video.paused || video.currentTime === previousTime) restart();
+      }, 1200);
+    }
+    function onReady() {
+      ready = true;
+      if (document.hidden) queueMicrotask(suspend);
+      else suspended = false;
+    }
+    const visibility = () => document.hidden ? suspend() : resume();
+    el.addEventListener('arReady', onReady);
+    document.addEventListener('visibilitychange', visibility);
+    window.addEventListener('pagehide', suspend);
+    window.addEventListener('pageshow', resume);
+    return () => {
+      clearTimeout(watchdog);
+      el.removeEventListener('arReady', onReady);
+      document.removeEventListener('visibilitychange', visibility);
+      window.removeEventListener('pagehide', suspend);
+      window.removeEventListener('pageshow', resume);
     };
   }, []);
 
@@ -231,10 +192,8 @@ function App() {
     const updateMotion = () => {
       currentX += (targetX - currentX) * 0.08;
       currentY += (targetY - currentY) * 0.08;
-      setGyroOffset({
-        x: parseFloat(currentX.toFixed(2)),
-        y: parseFloat(currentY.toFixed(2))
-      });
+      if (hudLines.current) hudLines.current.style.transform =
+        `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0)`;
       animId = requestAnimationFrame(updateMotion);
     };
 
@@ -270,9 +229,7 @@ function App() {
           src={linesImg} 
           alt="Lanna Lines" 
           className={`hud-lines-img hud-lines-glow ${hasStartedApp ? 'hud-dissolve' : ''}`} 
-          style={{
-            transform: `translate3d(${gyroOffset.x}px, ${gyroOffset.y}px, 0)`
-          }}
+          ref={hudLines}
         />
 
         <div className="hud-corner-glow"></div>
@@ -297,7 +254,7 @@ function App() {
         </header>
 
         {/* Viewfinder scanning state */}
-        {!isTracking && !showCharacterModal && !hologramPhase && (
+        {!showCharacterModal && !arEffectTargetId && (
           <div className="scanning-wrapper">
             <div className="scan-viewfinder">
               <div className="corner top-left"></div>
@@ -310,44 +267,9 @@ function App() {
           </div>
         )}
 
-        {/* Hologram -> Particles -> Stream to Information Animation Layer */}
-        {hologramPhase && hologramPhase !== 'completed' && activeTarget && (
-          <div className="hologram-scan-stage">
-            <div className="world-scan-status">
-              <div className="hologram-status-banner">
-                <Sparkles size={15} className="sparkle-pulse" />
-                <span>
-                  {hologramPhase === 'hologram' && t('hologramFound')}
-                  {(hologramPhase === 'dissolving' || hologramPhase === 'streaming') && t('transmittingData')}
-                </span>
-              </div>
-            </div>
-
-            {/* Dissolving Particles Streaming Towards the Data Receiver */}
-            <div className={`particle-stream-layer ${hologramPhase}`}>
-              {streamParticles.map((p) => (
-                <div 
-                  key={p.id}
-                  className="stream-particle"
-                  onAnimationEnd={p.id === lastParticle?.id ? finishParticleFlight : undefined}
-                  style={{
-                    '--dx': `${p.dx}px`,
-                    '--dy': `${p.dy}px`,
-                    '--delay': `${p.delay}s`,
-                    '--dur': `${p.duration}s`,
-                    width: `${p.size}px`,
-                    height: `${p.size}px`
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Bottom Data Receptor Portal */}
-            <div className={`data-receptor-portal ${hologramPhase === 'streaming' ? 'absorbing' : ''}`}>
-              <div className="receptor-glow"></div>
-            </div>
-          </div>
-        )}
+        {arEffectTargetId && <div className="hologram-scan-stage"><div className="world-scan-status">
+          <div className="hologram-status-banner"><Sparkles size={15} />{t('hologramFound')}</div>
+        </div></div>}
       </div>
 
       {/* Character Detail Modal (Rich info: Name, Concept, Inspiration, Story, Colors) */}
@@ -360,7 +282,7 @@ function App() {
 
       {/* AR Scene with Multi-target Support & 2D Hologram in 3D space */}
       <div className="ar-container">
-        <a-scene
+        <a-scene ref={scene}
           mindar-image={`imageTargetSrc: ${import.meta.env.BASE_URL}targets.mind; autoStart: true; uiLoading: no; uiScanning: no`}
           color-space="sRGB"
           renderer="colorManagement: true, physicallyCorrectLights"
@@ -387,51 +309,7 @@ function App() {
               mindar-image-target={`targetIndex: ${target.index}`} 
               ref={el => targetRefs.current[idx] = el}
             >
-              {/* Clean & Elegant 3D Hologram Ring in AR space */}
-              {arEffectTargetId === target.id && (
-                <a-entity position="0 0 0.04" guardian-field="">
-                  {/* Subtle Blooming Halo Ring */}
-                  <a-ring 
-                    radius-inner="0.46" 
-                    radius-outer="0.50" 
-                    color="#FDE047" 
-                    material="shader: flat; transparent: true; opacity: 0.6"
-                    animation="property: rotation; to: 0 0 360; dur: 9000; loop: true; easing: linear"
-                    animation__fade="property: material.opacity; from: 0.6; to: 0; dur: 4000; easing: easeInQuad"
-                  />
-
-                  {/* Single Clean Golden Torus with Gentle Depth */}
-                  <a-torus 
-                    radius="0.32" 
-                    radius-tubular="0.012" 
-                    color="#F59E0B" 
-                    material="shader: flat; transparent: true; opacity: 0.75"
-                    animation="property: rotation; to: 0 0 -360; dur: 7000; loop: true; easing: linear"
-                    animation__fade="property: material.opacity; from: 0.75; to: 0; dur: 3800; easing: easeInQuad"
-                  />
-
-                  {/* Soft Radiant Center Sparkle */}
-                  <a-sphere 
-                    position="0 0 0.05" 
-                    radius="0.08" 
-                    color="#FDE047" 
-                    material="shader: flat; transparent: true; opacity: 0.7"
-                    animation="property: scale; from: 0.8 0.8 0.8; to: 1.15 1.15 1.15; dur: 1500; dir: alternate; loop: true; easing: easeInOutSine"
-                    animation__dissolve="property: material.opacity; from: 0.7; to: 0; dur: 3400; easing: easeInQuad"
-                  />
-
-                  {/* Subtle Laser Scan Beam */}
-                  <a-plane 
-                    position="0 0 0.04" 
-                    height="0.02" 
-                    width="0.9" 
-                    color="#FFFFFF" 
-                    material="shader: flat; transparent: true; opacity: 0.65"
-                    animation="property: position; from: 0 -0.45 0.04; to: 0 0.45 0.04; dur: 1500; loop: true; dir: alternate; easing: linear"
-                    animation__fade="property: material.opacity; from: 0.65; to: 0; dur: 3200; easing: easeInQuad"
-                  />
-                </a-entity>
-              )}
+              {arEffectTargetId === target.id && <a-entity guardian-field="" />}
             </a-entity>
           ))}
         </a-scene>

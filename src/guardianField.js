@@ -2,36 +2,49 @@
 
 const { THREE } = window.AFRAME;
 
-// The marker's local XY plane is the card. Positive Z rises off its surface.
+// Each shard has a tilted waist and two tips along the marker's local Z axis.
 window.AFRAME.registerComponent('guardian-field', {
   init() {
-    const vertices = [];
+    const lines = [];
     const colors = [];
-    for (let i = 0; i < 360; i++) {
-      const t = (i % 120) / 119;
-      const strand = Math.floor(i / 120);
-      const angle = t * Math.PI * 4 + strand * Math.PI * 2 / 3;
-      const radius = .08 + .24 * Math.sin(Math.PI * t);
-      vertices.push(Math.cos(angle) * radius, Math.sin(angle) * radius, .06 + t * .54);
-      colors.push(...(strand === 0 ? [1, .72, .32] : [.38, .96, 1]));
+    const sparks = [];
+    for (const [x, y, height, width] of [[0, 0, .62, .19], [-.29, .12, .32, .09], [.27, -.13, .38, .10]]) {
+      const waist = [[x - width, y, .13], [x, y + width, .19],
+        [x + width, y, .15], [x, y - width, .09]];
+      for (let i = 0; i < waist.length; i++) {
+        const edge = waist[i];
+        const tip = [x + width * .6, y + width * .55, height];
+        for (const end of [tip, [x, y, .015], waist[(i + 1) % 4]]) {
+          lines.push(...edge, ...end);
+          const color = i === 1 ? [1, .68, .24] : [.35, .96, 1];
+          colors.push(...color, ...color);
+        }
+        for (let j = 0; j < 8; j++) {
+          const t = j / 8;
+          sparks.push(...edge.map((v, axis) => v + (tip[axis] - v) * t));
+        }
+      }
     }
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
     geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    const material = new THREE.PointsMaterial({
-      size: .009, vertexColors: true, transparent: true, depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    this.field = new THREE.Points(geometry, material);
-    this.el.setObject3D('particles', this.field);
+    const dust = new THREE.BufferGeometry();
+    dust.setAttribute('position', new THREE.Float32BufferAttribute(sparks, 3));
+    this.field = new THREE.Group();
+    this.field.add(new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ vertexColors: true })));
+    this.field.add(new THREE.Points(dust, new THREE.PointsMaterial({ size: .014, color: 0xc7ffff })));
+    this.age = 0;
+    this.el.setObject3D('shards', this.field);
   },
-  tick(time) {
-    this.field.rotation.z = time * .00075;
-    this.field.scale.z = 1 + .09 * Math.sin(time * .002);
+  tick(_, delta) {
+    this.age += delta || 0;
+    const grow = Math.min(1, this.age / 180);
+    this.field.scale.setScalar(.25 + .75 * grow);
+    this.field.rotation.z = this.age * .0008;
+    this.field.position.z = .03 + .04 * Math.sin(this.age * .003);
   },
   remove() {
-    this.el.removeObject3D('particles');
-    this.field.geometry.dispose();
-    this.field.material.dispose();
+    this.el.removeObject3D('shards');
+    this.field.children.forEach(mesh => { mesh.geometry.dispose(); mesh.material.dispose(); });
   },
 });
