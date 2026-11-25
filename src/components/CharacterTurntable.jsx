@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Expand, X } from 'lucide-react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -8,9 +8,15 @@ export default function CharacterTurntable({ portrait }) {
   const { t } = useTranslation();
   const viewer = useRef(null);
   const expandButton = useRef(null);
-  function collapse() {
-    viewer.current.close();
-    viewer.current.show();
+  async function collapse() {
+    const dialog = viewer.current;
+    if (!dialog.matches(':modal') || dialog.classList.contains('is-collapsing')) return;
+    dialog.classList.add('is-collapsing');
+    await Promise.allSettled(dialog.getAnimations().map(animation => animation.finished));
+    if (!dialog.isConnected) return;
+    dialog.close();
+    dialog.show();
+    dialog.classList.remove('is-collapsing');
     expandButton.current.focus();
   }
   const mount = useRef(null);
@@ -73,7 +79,9 @@ export default function CharacterTurntable({ portrait }) {
     let last = performance.now();
     renderer.setAnimationLoop(() => {
       const now = performance.now();
-      controls.autoRotate = !motion.matches && now >= resumeAt;
+      const ramp = Math.min(1, Math.max(0, (now - resumeAt) / 850));
+      controls.autoRotate = !motion.matches && ramp > 0;
+      controls.autoRotateSpeed = 2.8 * ramp * ramp * (3 - 2 * ramp);
       controls.update(Math.min(.05, (now - last) / 1000));
       last = now;
       renderer.render(scene, camera);

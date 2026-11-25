@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, BookOpen, Compass, Palette, X } from 'lucide-react';
 import './CharacterDetailModal.css';
@@ -7,6 +7,14 @@ import CharacterTurntable from './CharacterTurntable';
 export function CharacterDetailModal({ character, onClose, isGatheringParticles }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('story'); // 'story' | 'concept' | 'inspiration' | 'colorMeaning'
+
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (!closing) return;
+    const timer = setTimeout(onClose, 240);
+    return () => clearTimeout(timer);
+  }, [closing, onClose]);
 
   if (!character) return null;
 
@@ -25,10 +33,10 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
 
   return (
     <div 
-      className={`char-modal-backdrop ${isGatheringParticles ? 'particles-gathering' : 'particles-completed'}`}
+      className={`char-modal-backdrop ${isGatheringParticles ? 'particles-gathering' : 'particles-completed'}${closing ? ' is-closing' : ''}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
-          onClose();
+          setClosing(true);
         }
       }}
     >
@@ -48,7 +56,7 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
           className="char-close-btn" 
           onClick={(e) => {
             e.stopPropagation();
-            onClose();
+            setClosing(true);
           }} 
           aria-label={t('close')}
         >
@@ -100,33 +108,17 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
 
         {/* Tab Content Body with Progressive Text Flow */}
         <div className="char-body-content">
-          {activeTab === 'story' && (
-            <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">{t('labelStory')}</h4>
-              <p className="section-text">{charData.story}</p>
+          {[
+            ['story', 'labelStory'],
+            ['concept', 'labelConcept'],
+            ['inspiration', 'labelInspiration'],
+            ['colorMeaning', 'labelColors'],
+          ].map(([key, label]) => (
+            <div key={key} className="tab-pane" aria-hidden={activeTab !== key}>
+              <h4 className="section-label">{t(label)}</h4>
+              <p className="section-text">{charData[key]}</p>
             </div>
-          )}
-
-          {activeTab === 'concept' && (
-            <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">{t('labelConcept')}</h4>
-              <p className="section-text">{charData.concept}</p>
-            </div>
-          )}
-
-          {activeTab === 'inspiration' && (
-            <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">{t('labelInspiration')}</h4>
-              <p className="section-text multi-line">{charData.inspiration}</p>
-            </div>
-          )}
-
-          {activeTab === 'colorMeaning' && (
-            <div className="tab-pane active-pane animate-fade">
-              <h4 className="section-label">{t('labelColors')}</h4>
-              <p className="section-text multi-line">{charData.colorMeaning}</p>
-            </div>
-          )}
+          ))}
         </div>
 
         {/* Dismiss Bottom Button */}
@@ -135,7 +127,7 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
             className="confirm-dismiss-btn" 
             onClick={(e) => {
               e.stopPropagation();
-              onClose();
+              setClosing(true);
             }}
           >
             <span>{t('close')}</span>

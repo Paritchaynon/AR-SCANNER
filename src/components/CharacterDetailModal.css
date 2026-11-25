@@ -329,3 +329,40 @@
   display: block; position: absolute; bottom: max(24px, env(safe-area-inset-bottom));
   width: 100%; text-align: center; pointer-events: none; font-size: .85rem;
 }
+.char-modal-backdrop {
+  animation: info-backdrop-in 330ms ease-out both;
+}
+.char-card-container {
+  animation: info-card-in 420ms var(--motion-out) both;
+}
+.char-modal-backdrop.is-closing { animation: info-backdrop-in 230ms ease-in reverse both; }
+.is-closing .char-card-container { animation: info-card-out 230ms var(--motion-in-out) both; }
+@keyframes info-backdrop-in { from { opacity: 0; } }
+@keyframes info-card-in { from { opacity: 0; transform: translateY(20px) scale(.975); } }
+@keyframes info-card-out { to { opacity: 0; transform: translateY(12px) scale(.985); } }
+
+.char-body-content {
+  display: grid;
+  min-height: 0;
+  height: clamp(105px, 24dvh, 210px);
+  flex: 0 1 auto;
+  overflow: hidden;
+}
+.char-body-content .tab-pane {
+  grid-area: 1 / 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+  animation: none;
+  transition: opacity 230ms ease, translate 280ms var(--motion-out), visibility 230ms;
+}
+.tab-pane[aria-hidden="true"] { opacity: 0; translate: 0 5px; visibility: hidden; }
+.char-tab-btn { border: 1px solid transparent; transition: background-color 220ms ease, border-color 220ms ease, color 220ms ease, opacity 220ms ease, box-shadow 220ms ease, scale 140ms var(--motion-out); }
+.char-tab-btn.active { background: #8b460e; }
+.char-tab-btn:active, .char-close-btn:active, .turntable-viewer button:active { scale: .94; }
+.char-close-btn:hover { transform: none; }
+
+.turntable-viewer:modal { animation: model-view-in 370ms var(--motion-out) both; }
+.turntable-viewer:modal::backdrop { background: #160a10; animation: info-backdrop-in 280ms ease-out both; }
+.turntable-viewer:modal.is-collapsing { animation: model-view-out 220ms var(--motion-in-out) both; }
+@keyframes model-view-in { from { opacity: 0; transform: scale(.965); } }
+@keyframes model-view-out { to { opacity: 0; transform: scale(.975); } }

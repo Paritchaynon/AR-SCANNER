@@ -148,12 +148,12 @@ function App() {
   useEffect(() => {
     if (!captureOrigin) return;
     // The final mote lands at 1516 ms. Hold the collected light briefly before revealing the card.
+    const reveal = setTimeout(() => setShowCharacterModal(true), 1540);
     const timer = setTimeout(() => {
       setArEffectTargetId(null);
       setCaptureOrigin(null);
-      setShowCharacterModal(true);
     }, 1740);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(reveal); clearTimeout(timer); };
   }, [captureOrigin]);
 
   useEffect(() => {
@@ -297,8 +297,8 @@ function App() {
         </header>
 
         {/* Viewfinder scanning state */}
-        {!showCharacterModal && !arEffectTargetId && (
-          <div className="scanning-wrapper">
+        {(
+          <div className="scanning-wrapper" aria-hidden={showCharacterModal || !!arEffectTargetId}>
             <div className="scan-viewfinder">
               <div className="corner top-left"></div>
               <div className="corner top-right"></div>
@@ -361,7 +361,7 @@ function App() {
               mindar-image-target={`targetIndex: ${target.index}`} 
               ref={el => targetRefs.current[idx] = el}
             >
-              {arEffectTargetId === target.id && !captureOrigin && <a-entity guardian-field="" />}
+              {arEffectTargetId === target.id && <a-entity guardian-field={captureOrigin ? "capturing: true" : "capturing: false"} />}
             </a-entity>
           ))}
         </a-scene>

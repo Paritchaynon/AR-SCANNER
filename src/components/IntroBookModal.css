@@ -255,3 +255,8 @@
 .start-book-btn:hover .btn-arrow {
   transform: translateX(4px);
 }
+.book-modal-backdrop { animation: book-arrive 420ms var(--motion-out) both; }
+.book-modal-backdrop.page-turning { animation: none; }
+.book-container { transition-timing-function: var(--motion-in-out); }
+.start-book-btn { transition: transform 230ms var(--motion-out), background-color 230ms ease, box-shadow 230ms ease; }
+@keyframes book-arrive { from { opacity: 0; } }

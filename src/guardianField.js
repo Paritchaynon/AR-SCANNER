@@ -1,8 +1,9 @@
-﻿import 'aframe';
+import 'aframe';
 
 const { THREE } = window.AFRAME;
 
 window.AFRAME.registerComponent('guardian-field', {
+  schema: { capturing: { default: false } },
   init() {
     this.lantern = new THREE.Group();
     const bamboo = [];
@@ -42,11 +43,19 @@ window.AFRAME.registerComponent('guardian-field', {
       new THREE.Mesh(geometry(fringe), new THREE.MeshBasicMaterial({ color: 0xf2ad59, side: THREE.DoubleSide }))
     );
     this.age = 0;
+    this.fade = 0;
     this.el.setObject3D('lantern', this.lantern);
   },
   tick(_, delta) {
     this.age += delta || 0;
-    this.lantern.scale.setScalar(.4 + .6 * Math.min(1, this.age / 180));
+    const growth = 1 - (1 - Math.min(1, this.age / 360)) ** 3;
+    if (this.data.capturing) this.fade = Math.min(1, this.fade + delta / 240);
+    this.lantern.scale.setScalar((.4 + .6 * growth) * (1 - .18 * this.fade));
+    this.lantern.children.forEach((mesh, index) => {
+      mesh.material.transparent = true;
+      mesh.material.opacity = (index === 0 ? .86 : 1) * growth * (1 - this.fade);
+    });
+    this.lantern.visible = this.fade < 1;
     this.lantern.position.set(0, .045, .26 + .025 * Math.sin(this.age * .004));
     this.lantern.rotation.set(-.12, this.age * .0008, .07 * Math.sin(this.age * .004));
   },
