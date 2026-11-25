@@ -108,7 +108,7 @@ function App() {
       const distance = 45 + Math.random() * 80;
       const delay = (i % 6) * 0.12 + Math.random() * 0.15;
       const size = 5 + Math.random() * 7;
-      const duration = 2.0 + Math.random() * 0.8;
+      const duration = 2.35 + Math.random() * 0.4;
       return {
         id: i,
         dx: Math.cos(angle) * distance,
@@ -130,15 +130,17 @@ function App() {
       setHologramPhase('streaming');
     }, 3400);
 
-    // Phase 3 -> 4: Character information smoothly reveals (after 5.2s)
-    const t3 = setTimeout(() => {
-      setHologramPhase('completed');
-      setArEffectTargetId(null);
-      setShowCharacterModal(true);
-    }, 5200);
-
-    animTimeoutsRef.current = [t1, t2, t3];
+    animTimeoutsRef.current = [t1, t2];
   };
+
+  const finishParticleFlight = () => {
+    setHologramPhase('completed');
+    setArEffectTargetId(null);
+    setShowCharacterModal(true);
+  };
+
+  const lastParticle = streamParticles.reduce((last, p) =>
+    !last || p.delay + p.duration > last.delay + last.duration ? p : last, null);
 
   const handleCloseCharacterModal = () => {
     clearAnimTimeouts();
@@ -338,6 +340,7 @@ function App() {
                 <div 
                   key={p.id}
                   className="stream-particle"
+                  onAnimationEnd={p.id === lastParticle?.id ? finishParticleFlight : undefined}
                   style={{
                     '--dx': `${p.dx}px`,
                     '--dy': `${p.dy}px`,
