@@ -1,10 +1,22 @@
 ﻿import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Expand, X } from 'lucide-react';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // The turntable owns the model group, so an FBX can replace the mock geometry.
 export default function CharacterTurntable({ portrait }) {
+  const { t } = useTranslation();
+  const viewer = useRef(null);
+  const expandButton = useRef(null);
+  function collapse() {
+    viewer.current.close();
+    viewer.current.show();
+    expandButton.current.focus();
+  }
   const mount = useRef(null);
   useEffect(() => {
     const host = mount.current;
+    if (!viewer.current.open) viewer.current.show();
     const T = window.AFRAME.THREE;
     let renderer;
     try {
@@ -13,7 +25,7 @@ export default function CharacterTurntable({ portrait }) {
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(148, 132);
+    renderer.setSize(148, 132, false);
     host.appendChild(renderer.domElement);
     const scene = new T.Scene();
     const camera = new T.PerspectiveCamera(32, 148 / 132, .1, 20);
@@ -39,15 +51,36 @@ export default function CharacterTurntable({ portrait }) {
     const key = new T.DirectionalLight(0xffefd0, 2.4);
     key.position.set(3, 5, 4);
     scene.add(key);
-    renderer.render(scene, camera);
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      const start = performance.now();
-      renderer.setAnimationLoop(() => {
-        model.rotation.y = (performance.now() - start) * .00055;
-        renderer.render(scene, camera);
-      });
-    }
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1, 0);
+    controls.enablePan = false;
+    controls.enableDamping = true;
+    controls.minDistance = 1.6;
+    controls.maxDistance = 7;
+    controls.autoRotateSpeed = 2.8;
+    const motion = matchMedia('(prefers-reduced-motion: reduce)');
+    let resumeAt = 0;
+    controls.addEventListener('start', () => { resumeAt = Infinity; });
+    controls.addEventListener('end', () => { resumeAt = performance.now() + 2400; });
+    const resize = new ResizeObserver(() => {
+      const { clientWidth: w, clientHeight: h } = host;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    });
+    resize.observe(host);
+    let last = performance.now();
+    renderer.setAnimationLoop(() => {
+      const now = performance.now();
+      controls.autoRotate = !motion.matches && now >= resumeAt;
+      controls.update(Math.min(.05, (now - last) / 1000));
+      last = now;
+      renderer.render(scene, camera);
+    });
     return () => {
+      resize.disconnect();
+      controls.dispose();
       renderer.setAnimationLoop(null);
       model.children.forEach(mesh => { mesh.geometry.dispose(); mesh.material.dispose(); });
       renderer.dispose();
@@ -55,7 +88,16 @@ export default function CharacterTurntable({ portrait }) {
       renderer.domElement.remove();
     };
   }, []);
-  return <div className="character-turntable" ref={mount} aria-hidden="true">
-    {portrait && <img src={portrait} alt="" />}
-  </div>;
+  return <dialog className="turntable-viewer" ref={viewer} aria-label={t('viewModel')}
+    onCancel={event => { event.preventDefault(); collapse(); }}>
+    <div className="character-turntable" ref={mount}>
+      {portrait && <img src={portrait} alt="" />}
+    </div>
+    <button className="turntable-expand" ref={expandButton} aria-label={t('viewModel')}
+      onClick={() => { viewer.current.close(); viewer.current.showModal(); }}>
+      <Expand size={17} />
+    </button>
+    <button className="turntable-close" aria-label={t('close')} onClick={collapse}><X /></button>
+    <p className="turntable-hint">{t('modelGestureHint')}</p>
+  </dialog>;
 }

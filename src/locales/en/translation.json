@@ -1,4 +1,6 @@
 {
+  "viewModel": "View full model",
+  "modelGestureHint": "Drag to rotate ? Pinch or scroll to zoom",
   "appTitle": "CNX Design Week",
   "introTitle": "Tales of Lanna Golden Fairies",
   "introSubtitle": "Chiang Mai Design Week AR Experience",

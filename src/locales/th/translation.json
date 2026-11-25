@@ -1,4 +1,6 @@
 {
+  "viewModel": "ดูโมเดลเต็มจอ",
+  "modelGestureHint": "ลากเพื่อหมุน · จีบสองนิ้วหรือเลื่อนล้อเมาส์เพื่อซูม",
   "appTitle": "เชียงใหม่ดีไซน์วีค",
   "introTitle": "เรื่องเล่าขานภูตลายคำล้านนา",
   "introSubtitle": "Chiang Mai Design Week AR Experience",
