@@ -855,3 +855,4 @@ body {
   border-radius: 1px;
   box-shadow: 0 0 5px #91cbe9;
 }
+.world-scan-status { position: absolute; bottom: 16%; }

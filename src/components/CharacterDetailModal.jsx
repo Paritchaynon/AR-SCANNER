@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, BookOpen, Compass, Palette, X } from 'lucide-react';
 import './CharacterDetailModal.css';
+import CharacterTurntable from './CharacterTurntable';
 
 export function CharacterDetailModal({ character, onClose, isGatheringParticles }) {
   const { t } = useTranslation();
@@ -54,14 +55,7 @@ export function CharacterDetailModal({ character, onClose, isGatheringParticles 
           <X size={18} />
         </button>
 
-        {/* Character Cultural Emblem / Mystical Crest */}
-        <div className="char-avatar-wrapper">
-          <div className="char-avatar-ring"></div>
-          <div className="char-avatar-emblem">
-            {character.image ? <img className="char-seal-portrait" src={character.image} alt="" /> : <Sparkles size={38} className="emblem-core-sparkle" />}
-          </div>
-          <div className="char-hologram-scanline"></div>
-        </div>
+        <CharacterTurntable portrait={character.image} />
 
         {/* Character Name & Badge */}
         <div className="char-meta">

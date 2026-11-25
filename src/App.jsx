@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, Scan, X, Maximize2, RotateCcw, Sparkles } from 'lucide-react';
-import 'aframe';
+import './guardianField';
 import 'mind-ar/dist/mindar-image-aframe.prod.js';
 import './App.css';
 import { targetsConfig } from './config/targetsConfig';
@@ -313,21 +313,7 @@ function App() {
         {/* Hologram -> Particles -> Stream to Information Animation Layer */}
         {hologramPhase && hologramPhase !== 'completed' && activeTarget && (
           <div className="hologram-scan-stage">
-            {/* Celestial Sky Beam shining from absolute top of screen */}
-            <div className={`hologram-sky-beam ${hologramPhase}`}></div>
-
-            {/* Simple & Clean Hologram Projection */}
-            <div className={`hologram-projection ${hologramPhase}`}>
-              {/* Minimal Hologram Target Mystic Emblem Pod */}
-              <div className="hologram-avatar-pod">
-                <div className="hologram-emblem-core">
-                  {activeTarget.image
-                    ? <img className="projected-character" src={activeTarget.image} alt="" />
-                    : <Sparkles size={46} className="hologram-symbol-sparkle" />}
-                  <div className="hologram-grid-scan" />
-                </div>
-              </div>
-
+            <div className="world-scan-status">
               <div className="hologram-status-banner">
                 <Sparkles size={15} className="sparkle-pulse" />
                 <span>
@@ -403,7 +389,7 @@ function App() {
             >
               {/* Clean & Elegant 3D Hologram Ring in AR space */}
               {arEffectTargetId === target.id && (
-                <a-entity position="0 0 0.04">
+                <a-entity position="0 0 0.04" guardian-field="">
                   {/* Subtle Blooming Halo Ring */}
                   <a-ring 
                     radius-inner="0.46" 

@@ -296,3 +296,12 @@
   .char-card-container > * { flex-shrink: 0; }
   .char-body-content { flex: none; }
 }
+.character-turntable {
+  position: relative;
+  width: 148px; height: 132px; flex: none; margin: 0 auto 6px;
+  background: radial-gradient(ellipse at 50% 76%, #edba6240, transparent 65%);
+}
+.character-turntable img, .character-turntable canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+}
+.character-turntable:has(canvas) img { visibility: hidden; }
