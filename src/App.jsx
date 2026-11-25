@@ -107,7 +107,7 @@ function App() {
       const angle = (i / 36) * Math.PI * 2;
       const distance = 45 + Math.random() * 80;
       const delay = (i % 6) * 0.12 + Math.random() * 0.15;
-      const size = 5 + Math.random() * 7;
+      const size = 2 + Math.random() * 4;
       const duration = 2.35 + Math.random() * 0.4;
       return {
         id: i,
@@ -321,7 +321,10 @@ function App() {
               {/* Minimal Hologram Target Mystic Emblem Pod */}
               <div className="hologram-avatar-pod">
                 <div className="hologram-emblem-core">
-                  <Sparkles size={46} className="hologram-symbol-sparkle" />
+                  {activeTarget.image
+                    ? <img className="projected-character" src={activeTarget.image} alt="" />
+                    : <Sparkles size={46} className="hologram-symbol-sparkle" />}
+                  <div className="hologram-grid-scan" />
                 </div>
               </div>
 

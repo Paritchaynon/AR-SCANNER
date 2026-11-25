@@ -688,7 +688,7 @@ body {
 }
 
 @keyframes particle-flight {
-  0% { opacity: 0; transform: scale(.15); }
+  0% { opacity: 0; transform: translate(calc(var(--dx) * .36), calc(var(--dy) * .36 - 20px)) scale(.4); }
   12% { opacity: 1; }
   37% { transform: translate(var(--dx), var(--dy)) scale(1.08); }
   60% { opacity: .95; transform: translate(calc(var(--dx) * 1.12), calc(var(--dy) * .6 + 10cqh)) scale(.82); }
@@ -818,4 +818,40 @@ body {
   .info-content { max-width: 440px; padding: 28px; }
   .info-content h2 { font-size: 1.4rem; }
   .info-content p { font-size: 0.95rem; }
+}
+
+.projected-character {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.3);
+  mix-blend-mode: luminosity;
+  mask-image: repeating-linear-gradient(to bottom, #000 0 2px, #0007 2px 3px);
+  animation: projection-reveal .85s ease-out both;
+}
+@keyframes projection-reveal {
+  from { clip-path: inset(100% 0 0); opacity: 0; }
+  to { clip-path: inset(0); opacity: .95; }
+}
+.hologram-emblem-core {
+  background: radial-gradient(ellipse, #75d5d4 0%, #1f646d 56%, #162730 85%);
+}
+.hologram-avatar-pod { box-shadow: 0 0 24px #78eded55, inset 0 0 12px #a8ffffaa; }
+.hologram-grid-scan { background: linear-gradient(180deg, transparent 44%, #beffff99 50%, transparent 52%); }
+.hologram-projection::before {
+  content: '';
+  position: absolute;
+  width: 165px; height: 28px; top: 69%;
+  border: 1px solid #9ef4ea99;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #6ce1d744, inset 0 0 8px #6ce1d733;
+}
+.stream-particle:nth-child(3n + 1) {
+  background: #c4ffff;
+  box-shadow: 0 0 6px #7ef8ef;
+}
+.stream-particle:nth-child(3n + 2) {
+  background: #e7fffc;
+  border-radius: 1px;
+  box-shadow: 0 0 5px #91cbe9;
 }
